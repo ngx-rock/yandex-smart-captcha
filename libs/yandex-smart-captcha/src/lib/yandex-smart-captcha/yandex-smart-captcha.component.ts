@@ -24,62 +24,20 @@ import {
 } from '@angular/forms';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { isValidHost } from '../helpers/is-valid-host';
-
-// Declare global window interface
-declare global {
-  interface Window {
-    smartCaptcha: SmartCaptchaInstance;
-    __onSmartCaptchaReady: () => void;
-  }
-}
+import {
+  JavascriptErrorPayload,
+  SmartCaptchaInstance,
+  SmartCaptchaParams,
+} from '../types';
 
 const API_LINK = (host = 'smartcaptcha.yandexcloud.net') => {
   const base = /^https?/.test(host) ? host : `https://${host}`;
   return `${base}/captcha.js?render=onload&onload=__onSmartCaptchaReady`;
 };
 
-// Shared callbacks array - matches React implementation
+// Shared callbacks array
 const callbacks: (() => void)[] = [];
 const startLoading = new Map<string, boolean>();
-
-// Define interface for window.smartCaptcha
-interface SmartCaptchaInstance {
-  render: (container: HTMLElement, params: SmartCaptchaParams) => number;
-  destroy: (widgetId: number) => void;
-  subscribe: (
-    widgetId: number,
-    event: SmartCaptchaEvent,
-    callback: (...args: any[]) => void
-  ) => (() => void) | undefined;
-  execute: (widgetId: number) => void;
-  setTheme?: (widgetId: number, theme: 'light' | 'dark') => void;
-}
-
-interface SmartCaptchaParams {
-  sitekey: string;
-  hl?: string;
-  theme?: 'light' | 'dark';
-  invisible?: boolean;
-  hideShield?: boolean;
-  shieldPosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-  test?: boolean;
-  webview?: boolean;
-}
-
-type SmartCaptchaEvent =
-  | 'challenge-visible'
-  | 'challenge-hidden'
-  | 'network-error'
-  | 'success'
-  | 'token-expired'
-  | 'javascript-error';
-
-interface JavascriptErrorPayload {
-  filename: string;
-  message: string;
-  col: number;
-  line: number;
-}
 
 @Component({
   selector: 'smart-captcha',
@@ -118,7 +76,7 @@ export class SmartCaptchaComponent
   >();
   language = input<string>();
   host = input<string>();
-  theme = input<'light' | 'dark'>();
+  theme = input<'light' | 'dark'>('light');
   test = input<boolean>();
   webview = input<boolean>();
 
@@ -158,7 +116,7 @@ export class SmartCaptchaComponent
         this.widgetId !== undefined &&
         this.smartCaptchaInstance?.setTheme
       ) {
-        this.smartCaptchaInstance.setTheme(this.widgetId, this.theme()!);
+        this.smartCaptchaInstance.setTheme(this.widgetId, this.theme());
       }
     });
 
@@ -203,7 +161,6 @@ export class SmartCaptchaComponent
 
       // Add our callback to the shared array
       this.callbackIndex = callbacks.push(() => {
-        // No zone.run needed, setting signal will trigger CD
         this.smartCaptchaInstance = window.smartCaptcha;
         this.renderCaptcha();
       });
@@ -256,7 +213,6 @@ export class SmartCaptchaComponent
 
     // Handle regular onload/onerror
     script.onload = () => {
-      // No zone.run needed, setting signal or emitting event will trigger CD
       if (window.smartCaptcha && !this.smartCaptchaInstance) {
         this.smartCaptchaInstance = window.smartCaptcha;
         this.renderCaptcha();
@@ -264,7 +220,6 @@ export class SmartCaptchaComponent
     };
 
     script.onerror = () => {
-      // No zone.run needed, emitting event will trigger CD
       this.handleJavascriptError({
         filename: src,
         message: 'Unknown error on script loading',
@@ -277,7 +232,6 @@ export class SmartCaptchaComponent
     if (typeof window !== 'undefined') {
       this.errorEventHandler = (e: ErrorEvent) => {
         if (e.filename?.indexOf(src) === 0) {
-          // No zone.run needed, emitting event will trigger CD
           this.handleJavascriptError({
             filename: e.filename,
             message: e.message,
@@ -318,11 +272,17 @@ export class SmartCaptchaComponent
     try {
       this.widgetId = this.smartCaptchaInstance.render(container, params);
       this.setupSubscriptions();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[SmartCaptcha] Error rendering captcha widget:', error);
+
+      let message = 'Unknown error during rendering';
+      if (error instanceof Error) {
+        message = error.message;
+      }
+
       this.handleJavascriptError({
         filename: API_LINK(this.host()),
-        message: error.message || 'Unknown error during rendering',
+        message,
         col: 0,
         line: 0,
       });
@@ -340,7 +300,6 @@ export class SmartCaptchaComponent
         this.widgetId,
         'challenge-visible',
         () => {
-          // No zone.run needed, emitting event will trigger CD
           this.challengeVisible.emit();
         }
       ),
@@ -350,7 +309,6 @@ export class SmartCaptchaComponent
         'challenge-hidden',
         () => {
           console.error('hidden');
-          // No zone.run needed, emitting event will trigger CD
           this.challengeHidden.emit();
         }
       ),
@@ -359,7 +317,6 @@ export class SmartCaptchaComponent
         this.widgetId,
         'network-error',
         () => {
-          // No zone.run needed, emitting event will trigger CD
           this.networkError.emit();
         }
       ),
@@ -367,8 +324,9 @@ export class SmartCaptchaComponent
       this.smartCaptchaInstance.subscribe(
         this.widgetId,
         'success',
-        (token: string) => {
-          // No zone.run needed, setting signal and emitting event will trigger CD
+        (...args: unknown[]) => {
+          const [token] = args as [string];
+
           this._innerValue.set(token);
           this.onChange(token);
           this.onTouched();
@@ -380,7 +338,6 @@ export class SmartCaptchaComponent
         this.widgetId,
         'token-expired',
         () => {
-          // No zone.run needed, setting signal and emitting event will trigger CD
           this._innerValue.set(null);
           this.onChange(null);
           this.onTouched();
@@ -391,8 +348,8 @@ export class SmartCaptchaComponent
       this.smartCaptchaInstance.subscribe(
         this.widgetId,
         'javascript-error',
-        (error: JavascriptErrorPayload) => {
-          // No zone.run needed, emitting event will trigger CD
+        (...args: unknown[]) => {
+          const [error] = args as [JavascriptErrorPayload];
           this.handleJavascriptError(error);
         }
       ),
@@ -415,11 +372,6 @@ export class SmartCaptchaComponent
 
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
-  }
-
-  setDisabledState?(isDisabled: boolean): void {
-    // SmartCaptcha doesn't have a direct method to disable it
-    // You could potentially add visual cues if needed
   }
 
   // Validator method
@@ -471,7 +423,7 @@ export class InvisibleSmartCaptchaComponent
   // Always set invisible to true
   override invisible = input(true);
 
-  // Override ngOnInit to ensure invisible is always true - not needed as default is set in input
+  // Override ngOnInit to ensure invisible is always true
   override ngOnInit(): void {
     // Call parent initialization
     super.ngOnInit();

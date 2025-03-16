@@ -2,7 +2,7 @@
 
   <form [formGroup]="form" action="">
 
-    <angular-smart-captcha
+    <smart-captcha
       [test]="true"
       sitekey="ysc1_5BXY0ZzOmISVWQvltJ1OIJNIDZQnN9MRK9SOQCg8dadc43b2" formControlName="code" />
 
@@ -29,7 +29,7 @@
 
   <form [formGroup]="formInvisible" action="">
 
-    <angular-invisible-smart-captcha
+    <invisible-smart-captcha
       [test]="true"
       [visible]="visible()"
       (challengeHidden)="visible.set(false)"
