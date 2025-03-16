@@ -13,10 +13,9 @@ import {
   PLATFORM_ID,
   Renderer2,
   signal,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import {
-  AbstractControl,
   ControlValueAccessor,
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
@@ -24,6 +23,7 @@ import {
   Validator,
 } from '@angular/forms';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { isValidHost } from '../helpers/is-valid-host';
 
 // Declare global window interface
 declare global {
@@ -31,37 +31,6 @@ declare global {
     smartCaptcha: SmartCaptchaInstance;
     __onSmartCaptchaReady: () => void;
   }
-}
-
-// Regexes (corrected to match React implementation exactly)
-const domainRE = /^(\S+)$/;
-const localhostDomainRE = /^localhost[:?\d]*(?:[^:?\d]\S*)?$/;
-const nonLocalhostDomainRE = /^[^\s.]+\.\S{2,}$/;
-const IPv4RE = /^(https?:\/\/)?([0-9]{1,3}\.){3}[0-9]{1,3}:\d+$/;
-const IPv6RE =
-  /^(https?:\/\/)?\[([0-9a-fA-F]{0,4}:){7}([0-9a-fA-F]){0,4}]:\d+$/;
-
-function isValidHost(str: string | undefined): boolean {
-  if (typeof str !== 'string') {
-    return false;
-  }
-  const match = str.match(domainRE);
-  if (!match) {
-    return false;
-  }
-  const everythingAfterProtocol = match[0];
-  if (!everythingAfterProtocol) {
-    return false;
-  }
-  if (
-    localhostDomainRE.test(everythingAfterProtocol) ||
-    nonLocalhostDomainRE.test(everythingAfterProtocol) ||
-    IPv4RE.test(everythingAfterProtocol) ||
-    IPv6RE.test(everythingAfterProtocol)
-  ) {
-    return true;
-  }
-  return false;
 }
 
 const API_LINK = (host = 'smartcaptcha.yandexcloud.net') => {
@@ -113,8 +82,7 @@ interface JavascriptErrorPayload {
 }
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'angular-smart-captcha',
+  selector: 'smart-captcha',
   template: ` <div class="smart-captcha" #captchaContainer></div> `,
   styles: [
     `
@@ -161,8 +129,7 @@ export class SmartCaptchaComponent
   tokenExpired = output<void>();
   javascriptError = output<JavascriptErrorPayload>();
 
-  @ViewChild('captchaContainer', { static: true })
-  captchaContainer!: ElementRef<HTMLDivElement>;
+  captchaContainer = viewChild<ElementRef<HTMLDivElement>>('captchaContainer');
 
   protected widgetId: number | undefined;
   protected smartCaptchaInstance: SmartCaptchaInstance | undefined;
@@ -327,8 +294,9 @@ export class SmartCaptchaComponent
   }
 
   private renderCaptcha(): void {
+    const container = this.captchaContainer()?.nativeElement;
     if (
-      !this.captchaContainer?.nativeElement ||
+      !container ||
       !this.smartCaptchaInstance ||
       this.widgetId !== undefined ||
       this.destroyed
@@ -348,10 +316,7 @@ export class SmartCaptchaComponent
     };
 
     try {
-      this.widgetId = this.smartCaptchaInstance.render(
-        this.captchaContainer.nativeElement,
-        params
-      );
+      this.widgetId = this.smartCaptchaInstance.render(container, params);
       this.setupSubscriptions();
     } catch (error: any) {
       console.error('[SmartCaptcha] Error rendering captcha widget:', error);
@@ -458,10 +423,9 @@ export class SmartCaptchaComponent
   }
 
   // Validator method
-  validate(control: AbstractControl): ValidationErrors | null {
+  validate(): ValidationErrors | null {
     // When using invisible captcha, don't validate until user interacts
     if (this.invisible() && !this._innerValue()) {
-      // Access signal value
       return null;
     }
 
@@ -476,8 +440,7 @@ export class SmartCaptchaComponent
 }
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'angular-invisible-smart-captcha',
+  selector: 'invisible-smart-captcha',
   template: ` <div class="smart-captcha" #captchaContainer></div> `,
   styles: [
     `
