@@ -38,9 +38,6 @@ export class AppComponent {
 
   submit() {
     console.error('form', this.form.errors);
-    if (this.form.valid) {
-      this.visible.set(true);
-    }
   }
 
   submit2() {
