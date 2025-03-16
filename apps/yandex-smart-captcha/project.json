@@ -13,7 +13,7 @@
         "outputPath": "dist/apps/yandex-smart-captcha",
         "index": "apps/yandex-smart-captcha/src/index.html",
         "browser": "apps/yandex-smart-captcha/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": [],
         "tsConfig": "apps/yandex-smart-captcha/tsconfig.app.json",
         "assets": [
           {

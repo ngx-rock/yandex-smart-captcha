@@ -1,10 +1,16 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { appRoutes } from './app.routes';
+import {
+  ApplicationConfig,
+  provideExperimentalZonelessChangeDetection,
+} from '@angular/core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(appRoutes),
+    // provideZoneChangeDetection({ eventCoalescing: true }),
+    provideExperimentalZonelessChangeDetection(),
+    // provideExperimentalCheckNoChangesForDebug({
+    //   interval: 1000, // run change detection every second
+    //   useNgZoneOnStable: true, // run it when the NgZone is stable as well
+    //   exhaustive: true, // check all components
+    // }),
   ],
 };

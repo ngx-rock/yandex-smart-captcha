@@ -1,2 +1,55 @@
-<app-nx-welcome></app-nx-welcome>
-<router-outlet></router-outlet>
+<div class="demo">
+
+  <form [formGroup]="form" action="">
+
+    <angular-smart-captcha
+      [test]="true"
+      sitekey="ysc1_5BXY0ZzOmISVWQvltJ1OIJNIDZQnN9MRK9SOQCg8dadc43b2" formControlName="code" />
+
+    <div>
+      <input formControlName="text" type="text">
+    </div>
+
+    <div>
+      <button (click)="submit()">Отправить</button>
+    </div>
+
+    <div>
+      <pre>
+        {{ form.value | json }}
+      </pre>
+      <pre>
+        {{ form.errors | json }}
+      </pre>
+    </div>
+
+  </form>
+
+  <hr>
+
+  <form [formGroup]="formInvisible" action="">
+
+    <angular-invisible-smart-captcha
+      [test]="true"
+      [visible]="visible()"
+      (challengeHidden)="visible.set(false)"
+      sitekey="ysc1_5BXY0ZzOmISVWQvltJ1OIJNIDZQnN9MRK9SOQCg8dadc43b2" formControlName="code" />
+
+    <div>
+      <input formControlName="text" type="text">
+    </div>
+
+    <div>
+      <button (click)="submit2()">Отправить</button>
+    </div>
+
+    <div>
+      <pre>
+        {{ formInvisible.value | json }}
+      </pre>
+    </div>
+
+  </form>
+
+
+</div>
