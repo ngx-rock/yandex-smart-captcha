@@ -14,7 +14,11 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@ngx-rock/yandex-smart-captcha": [
+        "libs/yandex-smart-captcha/src/index.ts"
+      ]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
