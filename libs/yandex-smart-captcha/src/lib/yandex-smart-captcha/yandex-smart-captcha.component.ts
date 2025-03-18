@@ -37,7 +37,7 @@ const API_LINK = (host = 'smartcaptcha.yandexcloud.net') => {
 
 // Shared callbacks array
 const callbacks: (() => void)[] = [];
-const startLoading = new Map<string, boolean>();
+export const startLoading = new Map<string, boolean>();
 
 @Component({
   selector: 'smart-captcha',
