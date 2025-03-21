@@ -81,7 +81,7 @@ describe('SmartCaptchaComponent', () => {
   });
 
   it('should render captcha after view init', fakeAsync(() => {
-    component.ngAfterViewInit(); //
+    component.ngAfterViewInit();
     tick();
     expect(mockSmartCaptchaInstance.render).toHaveBeenCalled();
     expect(component['widgetId']).toBe(1);
