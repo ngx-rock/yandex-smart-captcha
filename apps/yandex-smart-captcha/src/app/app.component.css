@@ -1,7 +1,16 @@
-
+.demo {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 10px;
+  font-family: system-ui;
+}
 
 form {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.code {
+  word-break: break-all;
 }

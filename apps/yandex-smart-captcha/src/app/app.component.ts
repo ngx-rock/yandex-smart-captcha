@@ -9,13 +9,11 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { JsonPipe } from '@angular/common';
 
 @Component({
   imports: [
     InvisibleSmartCaptchaComponent,
     SmartCaptchaComponent,
-    JsonPipe,
     ReactiveFormsModule,
   ],
   selector: 'app-root',
@@ -23,25 +21,25 @@ import { JsonPipe } from '@angular/common';
   styleUrl: './app.component.css',
 })
 export class AppComponent {
-  hidden = signal(true);
+  sitekey = 'ysc1_5BXY0ZzOmISVWQvltJ1OIJNIDZQnN9MRK9SOQCg8dadc43b2';
+
   visible = signal(false);
 
   form = new FormGroup({
-    text: new FormControl(),
     code: new FormControl('', [Validators.required]),
   });
 
   formInvisible = new FormGroup({
-    text: new FormControl(),
     code: new FormControl(),
   });
 
   submit() {
-    console.error('form', this.form.errors);
+    if (this.form.valid) {
+      console.log('Code', this.form.get('code')?.value);
+    }
   }
 
-  submit2() {
-    console.error('formInvisible', this.formInvisible.valid);
+  submitInvisibleForm() {
     if (this.formInvisible.valid) {
       this.visible.set(true);
     }

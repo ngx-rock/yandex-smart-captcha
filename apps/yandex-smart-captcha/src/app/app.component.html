@@ -1,31 +1,26 @@
 <div class="demo">
 
+  <h2>The standard Yandex SmartCaptcha</h2>
+
   <form [formGroup]="form" action="">
 
     <smart-captcha
-      [test]="true"
-      sitekey="ysc1_5BXY0ZzOmISVWQvltJ1OIJNIDZQnN9MRK9SOQCg8dadc43b2" formControlName="code" />
-
-    <div>
-      <input formControlName="text" type="text">
-    </div>
+      [sitekey]="sitekey"
+      formControlName="code" />
 
     <div>
       <button (click)="submit()">Отправить</button>
     </div>
 
-    <div>
-      <pre>
-        {{ form.value | json }}
-      </pre>
-      <pre>
-        {{ form.errors | json }}
-      </pre>
+    <div class="code">
+      <b>Code: {{ form.get('code')?.value }}</b>
     </div>
 
   </form>
 
   <hr>
+
+  <h2>The invisible Yandex SmartCaptcha</h2>
 
   <form [formGroup]="formInvisible" action="">
 
@@ -33,20 +28,15 @@
       [test]="true"
       [visible]="visible()"
       (challengeHidden)="visible.set(false)"
-      sitekey="ysc1_5BXY0ZzOmISVWQvltJ1OIJNIDZQnN9MRK9SOQCg8dadc43b2" formControlName="code" />
+      [sitekey]="sitekey"
+      formControlName="code" />
 
     <div>
-      <input formControlName="text" type="text">
+      <button (click)="submitInvisibleForm()">Отправить</button>
     </div>
 
-    <div>
-      <button (click)="submit2()">Отправить</button>
-    </div>
-
-    <div>
-      <pre>
-        {{ formInvisible.value | json }}
-      </pre>
+    <div class="code">
+      <b>Code: {{ formInvisible.get('code')?.value }}</b>
     </div>
 
   </form>
