@@ -76,7 +76,7 @@ export class SmartCaptchaComponent
   >();
   language = input<string>();
   host = input<string>();
-  theme = input<'light' | 'dark'>('light');
+  theme = input<'light' | 'dark' | 'auto'>('auto');
   test = input<boolean>();
   webview = input<boolean>();
 

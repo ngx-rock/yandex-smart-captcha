@@ -1,10 +1,26 @@
 {
   "name": "@ngx-rock/yandex-smart-captcha",
-  "version": "0.0.1",
+  "version": "17.0.0",
+  "description": "Yandex smart captcha",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:ngx-rock/yandex-smart-captcha.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ngx-rock/yandex-smart-captcha/issues"
+  },
+  "homepage": "https://github.com/ngx-rock/yandex-smart-captcha#readme",
+  "keywords": [
+    "angular",
+    "ng",
+    "yandex smart captcha",
+    "captcha"
+  ],
   "peerDependencies": {
-    "@angular/common": "^19.2.0",
-    "@angular/core": "^19.2.0",
-    "@angular/forms": "~19.2.0"
+    "@angular/common": ">=17.3.0",
+    "@angular/core": ">=17.3.0",
+    "@angular/forms": ">=17.3.0"
   },
   "sideEffects": false
 }

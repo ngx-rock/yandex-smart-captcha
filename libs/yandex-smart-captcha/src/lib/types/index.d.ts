@@ -16,13 +16,13 @@ export interface SmartCaptchaInstance {
     callback: (...args: unknown[]) => void
   ) => (() => void) | undefined;
   execute: (widgetId: number) => void;
-  setTheme?: (widgetId: number, theme: 'light' | 'dark') => void;
+  setTheme?: (widgetId: number, theme: 'light' | 'dark' | 'auto') => void;
 }
 
 export interface SmartCaptchaParams {
   sitekey: string;
   hl?: string;
-  theme?: 'light' | 'dark';
+  theme?: 'light' | 'dark' | 'auto';
   invisible?: boolean;
   hideShield?: boolean;
   shieldPosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
