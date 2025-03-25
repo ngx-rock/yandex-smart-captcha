@@ -1,6 +1,6 @@
 {
   "name": "@yandex-smart-captcha/source",
-  "version": "17.0.1",
+  "version": "18.0.0",
   "license": "MIT",
   "scripts": {
     "test": "nx run-many -t test",
