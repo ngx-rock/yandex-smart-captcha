@@ -1,5 +1,9 @@
 # Changelog
 
+## [19.0.0] - 2025-03-26
+
+- Version updated.
+
 ## [18.0.0] - 2025-03-26
 
 - Version updated.
