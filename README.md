@@ -1,5 +1,7 @@
 # Angular Yandex Smart Captcha
 
+[![npm version](https://badge.fury.io/js/@ngx-rock%2Fyandex-smart-captcha.svg)](https://badge.fury.io/js/@ngx-rock%2Fyandex-smart-captcha) [![GitHub license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/ngx-rock/memoize-pipe/blob/main/LICENSE)
+
 An Angular library for integrating Yandex SmartCaptcha into your applications. This package provides Angular components that wrap the Yandex SmartCaptcha JavaScript library, supporting both standard and invisible captchas. 
 It leverages Angular’s reactive forms (via `ControlValueAccessor` and `Validator`) and modern features like signals and effects (with `zoneless` support).
 
@@ -227,3 +229,7 @@ Distributed under the MIT License.
 
 This documentation should provide a complete guide for developers integrating the Yandex SmartCaptcha into their Angular projects using **@ngx-rock/yandex-smart-captcha**. 
 Enjoy secure and seamless captcha integration in your Angular apps!
+
+---
+
+**[English](README.md)** | [Русский](README_RU.md)

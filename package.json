@@ -1,11 +1,13 @@
 {
   "name": "@yandex-smart-captcha/source",
-  "version": "17.0.0",
+  "version": "17.0.1",
   "license": "MIT",
   "scripts": {
     "test": "nx run-many -t test",
     "test:coverage": "npm run test -- --codeCoverage",
-    "lib:local:publish": "nx build yandex-smart-captcha && cd dist/libs/yandex-smart-captcha && npm publish --registry http://localhost:4873"
+    "docs": "cp README.md LICENSE dist/libs/yandex-smart-captcha",
+    "lib:local:publish": "nx build yandex-smart-captcha && npm run docs && cd dist/libs/yandex-smart-captcha && npm publish --registry http://localhost:4873",
+    "lib:publish": "nx build yandex-smart-captcha && npm run docs && cd dist/libs/yandex-smart-captcha && npm publish --access=public"
   },
   "private": true,
   "dependencies": {

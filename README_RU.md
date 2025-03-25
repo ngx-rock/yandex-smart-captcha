@@ -1,5 +1,7 @@
 # Angular Yandex Smart Captcha
 
+[![npm version](https://badge.fury.io/js/@ngx-rock%2Fyandex-smart-captcha.svg)](https://badge.fury.io/js/@ngx-rock%2Fyandex-smart-captcha) [![GitHub license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/ngx-rock/memoize-pipe/blob/main/LICENSE)
+
 Angular библиотека для интеграции Yandex SmartCaptcha в ваше приложение. Пакет предоставляет Angular-компоненты-обертки для JavaScript библиотеки Yandex SmartCaptcha, поддерживая как стандартный, так и невидимый режим работы. 
 Компоненты реализуют интерфейсы `ControlValueAccessor` и `Validator` для интеграции с реактивными формами Angular, а также используют современные возможности Angular (сигналы и эффекты) для работы в `zoneless` режиме.
 
@@ -227,3 +229,7 @@ export class CaptchaFormComponent {
 
 Эта документация предоставляет полный гайд для разработчиков по интеграции Yandex SmartCaptcha в Angular приложения с использованием **@ngx-rock/yandex-smart-captcha**. 
 Наслаждайтесь безопасной и удобной интеграцией капчи в ваши проекты!
+
+---
+
+[English](README.md) | **[Русский](README_RU.md)**
