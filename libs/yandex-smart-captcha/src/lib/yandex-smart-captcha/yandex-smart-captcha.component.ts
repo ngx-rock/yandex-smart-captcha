@@ -76,6 +76,9 @@ export class SmartCaptchaComponent
   >();
   language = input<string>();
   host = input<string>();
+  /**
+   * @deprecated This setting is deprecated and must only be changed via the Yandex Cloud interface.
+   */
   theme = input<'light' | 'dark' | 'auto'>('auto');
   test = input<boolean>();
   webview = input<boolean>();

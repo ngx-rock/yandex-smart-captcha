@@ -45,7 +45,6 @@ import { InvisibleSmartCaptchaComponent } from '@ngx-rock/yandex-smart-captcha';
   <smart-captcha
     formControlName="captcha"
     [sitekey]="'YOUR_SITE_KEY'"
-    [theme]="'light'"
     [language]="'ru'"
     (challengeVisible)="onChallengeVisible()"
     (challengeHidden)="onChallengeHidden()"
@@ -66,7 +65,6 @@ import { InvisibleSmartCaptchaComponent } from '@ngx-rock/yandex-smart-captcha';
   <invisible-smart-captcha
     formControlName="captcha"
     [sitekey]="'YOUR_SITE_KEY'"
-    [theme]="'dark'"
     [language]="'ru'"
     (challengeVisible)="onChallengeVisible()"
     (challengeHidden)="onChallengeHidden()"
@@ -88,7 +86,6 @@ import { InvisibleSmartCaptchaComponent } from '@ngx-rock/yandex-smart-captcha';
 
 #### Общие (для обоих компонентов)
 - **sitekey** (`string`, **обязательный**): Ваш ключ сайта для Yandex SmartCaptcha.
-- **theme** (`'light' | 'dark'`, по умолчанию: `'light'`): Визуальная тема капчи.
 - **language** (`string`): Локаль для отображения капчи (например, `'ru'` или `'en'`).
 - **test** (`boolean`): Включает тестовый режим для разработки.
 - **webview** (`boolean`): Включает специальное поведение для вебвью.
@@ -190,7 +187,7 @@ export class CaptchaFormComponent {
 ## Опции настройки
 
 Вы можете настраивать различные параметры капчи, передавая соответствующие входные значения:
-- **Тема (theme)**: Переключайтесь между `'light'` и `'dark'`.
+
 - **Язык (language)**: Задавайте локаль с помощью параметра `language`.
 - **Настройка уведомления об обработке данных.**: Определяйте видимость и позицию блока с помощью `hideShield` и `shieldPosition`.
 

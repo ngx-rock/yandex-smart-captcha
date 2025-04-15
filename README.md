@@ -45,7 +45,6 @@ import { InvisibleSmartCaptchaComponent } from '@ngx-rock/yandex-smart-captcha';
   <smart-captcha
     formControlName="captcha"
     [sitekey]="'YOUR_SITE_KEY'"
-    [theme]="'light'"
     [language]="'en'"
     (challengeVisible)="onChallengeVisible()"
     (challengeHidden)="onChallengeHidden()"
@@ -66,7 +65,6 @@ import { InvisibleSmartCaptchaComponent } from '@ngx-rock/yandex-smart-captcha';
   <invisible-smart-captcha
     formControlName="captcha"
     [sitekey]="'YOUR_SITE_KEY'"
-    [theme]="'dark'"
     [language]="'en'"
     (challengeVisible)="onChallengeVisible()"
     (challengeHidden)="onChallengeHidden()"
@@ -88,7 +86,6 @@ import { InvisibleSmartCaptchaComponent } from '@ngx-rock/yandex-smart-captcha';
 
 #### Common Inputs (for both components)
 - **sitekey** (`string`, **required**): Your Yandex SmartCaptcha site key.
-- **theme** (`'light' | 'dark'`, default: `'light'`): The visual theme of the captcha.
 - **language** (`string`): Locale code for language customization (e.g., `'en'` or `'ru'`).
 - **test** (`boolean`): Enable test mode for development.
 - **webview** (`boolean`): Enable special behavior for webview contexts.
@@ -190,7 +187,7 @@ export class CaptchaFormComponent {
 ## Customization Options
 
 You can customize various aspects of the captcha by passing different inputs:
-- **Theme**: Switch between `'light'` and `'dark'`.
+
 - **Language**: Adjust the captcha language with the `language` input.
 - **Shield Customization**: Configure shield visibility and position with `hideShield` and `shieldPosition`.
 
