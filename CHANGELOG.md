@@ -1,5 +1,9 @@
 # Changelog
 
+## [19.1.1] - 2025-05-06
+
+  - Added `export {}` statement to convert file to TypeScript module, enabling proper augmentation of global Window interface
+
 ## [19.1.0] - 2025-04-15
 
 ### Deprecated
