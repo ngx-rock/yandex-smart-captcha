@@ -1,4 +1,6 @@
 // Declare global window interface
+export {};
+
 declare global {
   interface Window {
     smartCaptcha: SmartCaptchaInstance;
