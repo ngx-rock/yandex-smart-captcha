@@ -1,5 +1,9 @@
 # Changelog
 
+## [20.0.0] - 2025-24-06
+
+- Version updated.
+
 ## [19.1.1] - 2025-05-06
 
   - Added `export {}` statement to convert file to TypeScript module, enabling proper augmentation of global Window interface

@@ -1,12 +1,12 @@
 import {
   ApplicationConfig,
-  provideExperimentalZonelessChangeDetection,
+  provideZonelessChangeDetection,
 } from '@angular/core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     // provideZoneChangeDetection({ eventCoalescing: true }),
-    provideExperimentalZonelessChangeDetection(),
+    provideZonelessChangeDetection(),
     // provideExperimentalCheckNoChangesForDebug({
     //   interval: 1000, // run change detection every second
     //   useNgZoneOnStable: true, // run it when the NgZone is stable as well

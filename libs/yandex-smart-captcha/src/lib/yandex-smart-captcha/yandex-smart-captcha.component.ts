@@ -14,6 +14,7 @@ import {
   Renderer2,
   signal,
   viewChild,
+  DOCUMENT
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -22,7 +23,7 @@ import {
   ValidationErrors,
   Validator,
 } from '@angular/forms';
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { isValidHost } from '../helpers/is-valid-host';
 import {
   JavascriptErrorPayload,
