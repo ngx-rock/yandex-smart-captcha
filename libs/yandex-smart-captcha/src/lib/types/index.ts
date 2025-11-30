@@ -12,6 +12,7 @@ declare global {
 export interface SmartCaptchaInstance {
   render: (container: HTMLElement, params: SmartCaptchaParams) => number;
   destroy: (widgetId: number) => void;
+  executePromise: (widgetId?: number) => Promise<string>;
   subscribe: (
     widgetId: number,
     event: SmartCaptchaEvent,
@@ -23,7 +24,7 @@ export interface SmartCaptchaInstance {
 
 export interface SmartCaptchaParams {
   sitekey: string;
-  hl?: string;
+  hl?: 'ru' | 'en' | 'be' | 'kk' | 'tt' | 'uk' | 'uz' | 'tr';
   theme?: 'light' | 'dark' | 'auto';
   invisible?: boolean;
   hideShield?: boolean;

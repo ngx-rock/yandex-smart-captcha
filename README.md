@@ -218,9 +218,9 @@ Distributed under the MIT License.
 
 ---
 
-## References
+## References 
 
-- [Yandex SmartCaptcha Documentation (React)](https://yandex.cloud/en-ru/docs/smartcaptcha/concepts/react?utm_referrer=about%3Ablank)
+- [Yandex SmartCaptcha 2.9.0 Documentation (React)](https://yandex.cloud/en-ru/docs/smartcaptcha/concepts/react?utm_referrer=about%3Ablank)
 
 ---
 

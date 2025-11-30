@@ -1,5 +1,11 @@
 # Changelog
 
+## [20.1.0] - 2025-12-01
+
+### Fixed
+- Added missing type exports from main index.ts file (`SmartCaptchaInstance`, `SmartCaptchaParams`, `JavascriptErrorPayload`)
+- Types are now properly accessible when importing from the package
+ 
 ## [20.0.0] - 2025-24-06
 
 - Version updated.
