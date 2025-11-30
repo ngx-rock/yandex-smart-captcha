@@ -2,10 +2,11 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  DOCUMENT,
   effect,
   ElementRef,
   forwardRef,
-  Inject,
+  inject,
   input,
   OnDestroy,
   OnInit,
@@ -14,7 +15,6 @@ import {
   Renderer2,
   signal,
   viewChild,
-  DOCUMENT
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -75,7 +75,7 @@ export class SmartCaptchaComponent
   shieldPosition = input<
     'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
   >();
-  language = input<string>();
+  language = input<SmartCaptchaParams['hl']>();
   host = input<string>();
   /**
    * @deprecated This setting is deprecated and must only be changed via the Yandex Cloud interface.
@@ -93,6 +93,10 @@ export class SmartCaptchaComponent
 
   captchaContainer = viewChild<ElementRef<HTMLDivElement>>('captchaContainer');
 
+  private readonly renderer2 = inject(Renderer2);
+  private readonly document = inject(DOCUMENT);
+  private readonly platformId = inject(PLATFORM_ID);
+
   protected widgetId: number | undefined;
   protected smartCaptchaInstance: SmartCaptchaInstance | undefined;
   protected destroyed = false;
@@ -105,14 +109,10 @@ export class SmartCaptchaComponent
   private onTouched = () => {
     // onTouched
   };
-  private _innerValue = signal<string | null>(null); // Use a signal for innerValue
+  private readonly _innerValue = signal<string | null>(null);
   private callbackIndex: number | null = null;
 
-  constructor(
-    private renderer2: Renderer2,
-    @Inject(DOCUMENT) private document: Document,
-    @Inject(PLATFORM_ID) private platformId: object
-  ) {
+  constructor() {
     // Effect for theme changes
     effect(() => {
       if (
@@ -140,7 +140,7 @@ export class SmartCaptchaComponent
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) {
-      return; // Don't proceed on server-side
+      return;
     }
 
     if (this.host() !== undefined && !isValidHost(this.host())) {
