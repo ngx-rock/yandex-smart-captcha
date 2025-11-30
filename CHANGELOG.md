@@ -1,5 +1,9 @@
 # Changelog
 
+## [21.0.0] - 2025-12-01
+
+- Version updated.
+
 ## [20.1.0] - 2025-12-01
 
 ### Fixed
