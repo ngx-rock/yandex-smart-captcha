@@ -31,7 +31,7 @@ import {
   SmartCaptchaParams,
 } from '../types';
 
-const API_LINK = (host = 'smartcaptcha.yandexcloud.net') => {
+const API_LINK = (host = 'smartcaptcha.cloud.yandex.ru') => {
   const base = /^https?/.test(host) ? host : `https://${host}`;
   return `${base}/captcha.js?render=onload&onload=__onSmartCaptchaReady`;
 };
