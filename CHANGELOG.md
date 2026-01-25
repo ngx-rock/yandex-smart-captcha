@@ -1,5 +1,10 @@
 # Changelog
 
+## [21.1.0] - 2026-01-25
+
+### Fixed
+- Update API link for Yandex SmartCaptcha to new domain (smartcaptcha.cloud.yandex.ru)
+ 
 ## [21.0.0] - 2025-12-01
 
 - Version updated.
