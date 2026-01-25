@@ -1,16 +1,5 @@
-import {
-  ComponentFixture,
-  fakeAsync,
-  TestBed,
-  tick,
-} from '@angular/core/testing';
-import { DOCUMENT } from '@angular/common';
-import {
-  InvisibleSmartCaptchaComponent,
-  SmartCaptchaComponent,
-  startLoading,
-} from './';
 import { DebugElement } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { By } from '@angular/platform-browser';
 import {
   FormControl,
@@ -18,6 +7,17 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
+import {
+  InvisibleSmartCaptchaComponent,
+  SmartCaptchaComponent,
+  startLoading,
+} from './';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 
 describe('SmartCaptchaComponent', () => {
   let component: SmartCaptchaComponent;
@@ -155,7 +155,7 @@ describe('SmartCaptchaComponent', () => {
     fixture.componentRef.setInput('visible', true);
 
     fixture.detectChanges();
-    TestBed.flushEffects();
+    TestBed.tick();
     tick();
 
     expect(mockSmartCaptchaInstance.execute).toHaveBeenCalledWith(1);
@@ -487,7 +487,7 @@ describe('InvisibleSmartCaptchaComponent', () => {
   it('should execute captcha when visible input changes to true', fakeAsync(() => {
     fixture.componentRef.setInput('visible', true);
     fixture.detectChanges();
-    TestBed.flushEffects();
+    TestBed.tick();
     tick();
 
     expect(mockSmartCaptchaInstance.execute).toHaveBeenCalledWith(1);

@@ -3,8 +3,13 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
+    "moduleResolution": "node16",
     "target": "es2016",
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": true
   },
   "files": ["src/test-setup.ts"],
   "include": [
