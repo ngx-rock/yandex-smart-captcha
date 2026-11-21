@@ -14,6 +14,27 @@
   },
   "tags": [],
   "targets": {
+    "storybook": {
+      "executor": "@storybook/angular:start-storybook",
+      "options": {
+        "configDir": ".storybook",
+        "browserTarget": "@ngx-rock/yandex-smart-captcha:build-storybook",
+        "tsConfig": ".storybook/tsconfig.json",
+        "port": 6006,
+        "compodoc": false
+      },
+      "continuous": true
+    },
+    "build-storybook": {
+      "executor": "@storybook/angular:build-storybook",
+      "outputs": ["{options.outputDir}"],
+      "options": {
+        "configDir": ".storybook",
+        "tsConfig": ".storybook/tsconfig.json",
+        "outputDir": "dist/storybook",
+        "compodoc": false
+      }
+    },
     "build": {
       "executor": "@nx/angular:package",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],

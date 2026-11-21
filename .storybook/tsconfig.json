@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../dist/out-tsc/storybook",
+    "moduleResolution": "bundler",
+    "types": ["node"]
+  },
+  "include": ["./**/*.ts", "../libs/yandex-smart-captcha/src/**/*.ts"],
+  "exclude": ["../libs/**/*.spec.ts", "../libs/**/test-setup.ts"]
+}
