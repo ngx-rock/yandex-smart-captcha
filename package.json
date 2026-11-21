@@ -5,9 +5,11 @@
   "scripts": {
     "storybook": "nx run @ngx-rock/yandex-smart-captcha:storybook",
     "build-storybook": "nx run @ngx-rock/yandex-smart-captcha:build-storybook",
+    "lint": "nx lint @ngx-rock/yandex-smart-captcha",
+    "build": "nx build @ngx-rock/yandex-smart-captcha",
     "test": "nx run-many -t test",
     "test:coverage": "pnpm test --coverage",
-    "docs": "cp README.md LICENSE dist/libs/yandex-smart-captcha",
+    "docs": "cp README.md README_RU.md LICENSE dist/libs/yandex-smart-captcha",
     "lib:local:publish": "nx build @ngx-rock/yandex-smart-captcha && npm run docs && cd dist/libs/yandex-smart-captcha && npm publish --registry http://localhost:4873",
     "lib:publish": "nx build @ngx-rock/yandex-smart-captcha && npm run docs && cd dist/libs/yandex-smart-captcha && npm publish --access=public"
   },
