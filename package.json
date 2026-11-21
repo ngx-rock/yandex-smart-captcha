@@ -1,6 +1,6 @@
 {
   "name": "@yandex-smart-captcha/source",
-  "version": "21.1.1",
+  "version": "22.0.0",
   "license": "MIT",
   "scripts": {
     "storybook": "nx run @ngx-rock/yandex-smart-captcha:storybook",
