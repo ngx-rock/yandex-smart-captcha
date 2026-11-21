@@ -2,27 +2,13 @@
 
 [![npm version](https://badge.fury.io/js/@ngx-rock%2Fyandex-smart-captcha.svg)](https://badge.fury.io/js/@ngx-rock%2Fyandex-smart-captcha) [![GitHub license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/ngx-rock/memoize-pipe/blob/main/LICENSE)
 
-An Angular library for integrating Yandex SmartCaptcha into your applications. This package provides Angular components that wrap the Yandex SmartCaptcha JavaScript library, supporting both standard and invisible captchas. 
+Angular components for standard and invisible Yandex SmartCaptcha with reactive forms and zoneless support.
 
-## Storybook
+See the [live Storybook demos](https://ngx-rock.github.io/yandex-smart-captcha/).
 
-Explore the standard and invisible widgets and their reactive form examples in
-the [Storybook](https://ngx-rock.github.io/yandex-smart-captcha/). To run it locally:
+## Compatibility
 
-```bash
-pnpm install
-pnpm storybook
-```
-
-Open http://localhost:6006. The stories use the real Yandex SmartCaptcha service;
-enter a public site key whose allowed hosts include the current domain. The
-example key from this repository may not work on every host. The `test` option
-uses Yandex's test mode; it does not replace server-side token verification.
-To build the static site, run `pnpm build-storybook`. GitHub Actions deploys
-the result to GitHub Pages on pushes to `main`.
-It leverages Angular’s reactive forms (via `ControlValueAccessor` and `Validator`) and modern features like signals and effects (with `zoneless` support).
-
-> **Note:** This documentation mirrors the concepts from the [Yandex SmartCaptcha React documentation](https://yandex.cloud/en-ru/docs/smartcaptcha/concepts/react?utm_referrer=about%3Ablank) while adapting them to Angular.
+Widget options and updates follow [`@yandex/smart-captcha` 2.9.1](https://www.npmjs.com/package/@yandex/smart-captcha/v/2.9.1), Yandex's React wrapper. The Angular package loads the SmartCaptcha script directly.
 
 ## Installation
 
@@ -110,10 +96,10 @@ import { InvisibleSmartCaptchaComponent } from '@ngx-rock/yandex-smart-captcha';
 #### Specific Inputs
 - **invisible** (`boolean`):
   - **SmartCaptchaComponent**: Determines whether the captcha is invisible.
-  - **InvisibleSmartCaptchaComponent**: Always set to `true` (cannot be overridden).
+  - **InvisibleSmartCaptchaComponent**: Defaults to `true`.
 - **visible** (`boolean`): Triggers the execution for invisible captcha when set.
 - **hideShield** (`boolean`): Option to hide the shield.
-- **shieldPosition** (`'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'`): Position of the shield with data processing notice when visible.
+- **shieldPosition** (`'top-left' | 'center-left' | 'bottom-left' | 'top-right' | 'center-right' | 'bottom-right'`): Position of the data processing notice.
  
 ### Outputs (Events)
 
@@ -237,7 +223,7 @@ Distributed under the MIT License.
 
 ## References 
 
-- [Yandex SmartCaptcha 2.9.0 Documentation (React)](https://yandex.cloud/en-ru/docs/smartcaptcha/concepts/react?utm_referrer=about%3Ablank)
+- [Yandex SmartCaptcha documentation (React)](https://yandex.cloud/en/docs/smartcaptcha/concepts/react)
 
 ---
 

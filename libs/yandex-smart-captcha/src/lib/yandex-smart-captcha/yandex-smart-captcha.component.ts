@@ -3,17 +3,18 @@ import {
   ChangeDetectionStrategy,
   Component,
   DOCUMENT,
-  effect,
   ElementRef,
   forwardRef,
   inject,
   input,
+  OnChanges,
   OnDestroy,
   OnInit,
   output,
   PLATFORM_ID,
   Renderer2,
   signal,
+  SimpleChanges,
   viewChild,
 } from '@angular/core';
 import {
@@ -66,15 +67,19 @@ export const startLoading = new Map<string, boolean>();
   standalone: true,
 })
 export class SmartCaptchaComponent
-  implements ControlValueAccessor, Validator, OnInit, AfterViewInit, OnDestroy
+  implements
+    ControlValueAccessor,
+    Validator,
+    OnInit,
+    OnChanges,
+    AfterViewInit,
+    OnDestroy
 {
   sitekey = input.required<string>();
   invisible = input<boolean>(false);
   visible = input<boolean>(); // For InvisibleCaptcha to execute
   hideShield = input<boolean>();
-  shieldPosition = input<
-    'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
-  >();
+  shieldPosition = input<SmartCaptchaParams['shieldPosition']>();
   language = input<SmartCaptchaParams['hl']>();
   host = input<string>();
   /**
@@ -111,38 +116,35 @@ export class SmartCaptchaComponent
   };
   private readonly _innerValue = signal<string | null>(null);
   private callbackIndex: number | null = null;
-  private visibleExecuted = false;
 
-  constructor() {
-    // Effect for theme changes
-    effect(() => {
-      if (
-        this.theme() &&
-        this.widgetId !== undefined &&
-        this.smartCaptchaInstance?.setTheme
-      ) {
-        this.smartCaptchaInstance.setTheme(this.widgetId, this.theme());
-      }
-    });
-
-    effect(() => {
-      this.executeWhenVisible();
-    });
-  }
-
-  private executeWhenVisible(): void {
-    if (!this.visible() || !this.invisible()) {
-      this.visibleExecuted = false;
+  ngOnChanges(changes: SimpleChanges<SmartCaptchaComponent>): void {
+    if (!this.smartCaptchaInstance || this.destroyed) {
       return;
     }
     if (
-      !this.visibleExecuted &&
-      this.smartCaptchaInstance &&
-      typeof this.widgetId === 'number' &&
-      !this.destroyed
+      changes.sitekey ||
+      changes.language ||
+      changes.test ||
+      changes.webview ||
+      changes.invisible ||
+      (this.invisible() && (changes.hideShield || changes.shieldPosition))
     ) {
-      this.visibleExecuted = true;
-      this.smartCaptchaInstance.execute(this.widgetId);
+      if (this.widgetId !== undefined) {
+        this.destroyWidget();
+        if (this._innerValue() !== null) {
+          this._innerValue.set(null);
+          this.onChange(null);
+        }
+      }
+      this.renderCaptcha();
+      return;
+    }
+
+    if (changes.theme && this.theme() && this.widgetId !== undefined) {
+      this.smartCaptchaInstance.setTheme?.(this.widgetId, this.theme());
+    }
+    if (changes.visible) {
+      this.executeWhenVisible();
     }
   }
 
@@ -200,19 +202,26 @@ export class SmartCaptchaComponent
       callbacks.splice(this.callbackIndex - 1, 1);
     }
 
-    // Destroy widget if it exists
-    if (this.widgetId !== undefined && this.smartCaptchaInstance) {
-      this.smartCaptchaInstance.destroy(this.widgetId);
-      this.widgetId = undefined;
-    }
-
-    // Clean up subscriptions
-    this.unsubscribeFns.forEach((fn) => fn && fn());
-    this.unsubscribeFns = [];
+    this.destroyWidget();
 
     // Remove error event handler
     if (this.errorEventHandler && typeof window !== 'undefined') {
       window.removeEventListener('error', this.errorEventHandler);
+    }
+  }
+
+  private destroyWidget(): void {
+    this.unsubscribeFns.forEach((unsubscribe) => unsubscribe?.());
+    this.unsubscribeFns = [];
+    if (this.widgetId !== undefined) {
+      this.smartCaptchaInstance?.destroy(this.widgetId);
+      this.widgetId = undefined;
+    }
+  }
+
+  private executeWhenVisible(): void {
+    if (this.visible() && this.invisible() && typeof this.widgetId === 'number') {
+      this.smartCaptchaInstance?.execute(this.widgetId);
     }
   }
 
@@ -429,16 +438,6 @@ export class SmartCaptchaComponent
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InvisibleSmartCaptchaComponent
-  extends SmartCaptchaComponent
-  implements OnInit
-{
-  // Always set invisible to true
+export class InvisibleSmartCaptchaComponent extends SmartCaptchaComponent {
   override invisible = input(true);
-
-  // Override ngOnInit to ensure invisible is always true
-  override ngOnInit(): void {
-    // Call parent initialization
-    super.ngOnInit();
-  }
 }

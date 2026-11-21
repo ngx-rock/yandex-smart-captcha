@@ -3,9 +3,13 @@
 [![npm version](https://badge.fury.io/js/@ngx-rock%2Fyandex-smart-captcha.svg)](https://badge.fury.io/js/@ngx-rock%2Fyandex-smart-captcha) [![GitHub license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/ngx-rock/memoize-pipe/blob/main/LICENSE)
 
 Angular библиотека для интеграции Yandex SmartCaptcha в ваше приложение. Пакет предоставляет Angular-компоненты-обертки для JavaScript библиотеки Yandex SmartCaptcha, поддерживая как стандартный, так и невидимый режим работы. 
-Компоненты реализуют интерфейсы `ControlValueAccessor` и `Validator` для интеграции с реактивными формами Angular, а также используют современные возможности Angular (сигналы и эффекты) для работы в `zoneless` режиме.
+Компоненты поддерживают реактивные формы Angular и режим `zoneless`.
 
-> **Примечание:** Документация основана на концепциях [Yandex SmartCaptcha для React](https://yandex.cloud/en-ru/docs/smartcaptcha/concepts/react?utm_referrer=about%3Ablank) и адаптирована под особенности Angular.
+Примеры можно открыть в [Storybook](https://ngx-rock.github.io/yandex-smart-captcha/).
+
+## Совместимость
+
+Настройки виджета и их обновление работают как в React-обёртке Яндекса [`@yandex/smart-captcha` 2.9.1](https://www.npmjs.com/package/@yandex/smart-captcha/v/2.9.1). Angular-пакет загружает скрипт SmartCaptcha напрямую.
 
 ## Установка
 
@@ -93,10 +97,10 @@ import { InvisibleSmartCaptchaComponent } from '@ngx-rock/yandex-smart-captcha';
 #### Специфичные
 - **invisible** (`boolean`):
   - **SmartCaptchaComponent**: Определяет, работает ли капча в невидимом режиме.
-  - **InvisibleSmartCaptchaComponent**: Всегда имеет значение `true`.
+  - **InvisibleSmartCaptchaComponent**: По умолчанию `true`.
 - **visible** (`boolean`): Триггер для выполнения невидимой капчи при изменении.
 - **hideShield** (`boolean`): Опция для скрытия блока уведомления об обработке данных.
-- **shieldPosition** (`'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'`): Позиция блока, если он отображается.
+- **shieldPosition** (`'top-left' | 'center-left' | 'bottom-left' | 'top-right' | 'center-right' | 'bottom-right'`): Позиция блока уведомления об обработке данных.
 
 ### Исходящие события (Outputs)
 

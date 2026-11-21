@@ -1,4 +1,4 @@
-import { DebugElement } from '@angular/core';
+import { Component, DebugElement, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { By } from '@angular/platform-browser';
 import {
@@ -18,6 +18,20 @@ import {
   TestBed,
   tick,
 } from '@angular/core/testing';
+
+@Component({
+  imports: [ReactiveFormsModule, SmartCaptchaComponent],
+  template: `
+    <form>
+      <smart-captcha [sitekey]="sitekey()" [formControl]="captcha" />
+      <button type="submit" [disabled]="captcha.invalid">Submit</button>
+    </form>
+  `,
+})
+class CaptchaForm {
+  readonly sitekey = signal('test-site-key');
+  readonly captcha = new FormControl<string | null>(null);
+}
 
 describe('SmartCaptchaComponent', () => {
   let component: SmartCaptchaComponent;
@@ -52,7 +66,12 @@ describe('SmartCaptchaComponent', () => {
     });
 
     await TestBed.configureTestingModule({
-      imports: [SmartCaptchaComponent, FormsModule, ReactiveFormsModule],
+      imports: [
+        SmartCaptchaComponent,
+        FormsModule,
+        ReactiveFormsModule,
+        CaptchaForm,
+      ],
       providers: [
         {
           provide: DOCUMENT,
@@ -78,6 +97,53 @@ describe('SmartCaptchaComponent', () => {
 
   it('should create the component', () => {
     expect(component).toBeTruthy();
+  });
+
+  it.each([
+    ['language', 'ru', { hl: 'ru' }],
+    ['sitekey', 'new-site-key', { sitekey: 'new-site-key' }],
+    ['test', true, { test: true }],
+    ['webview', true, { webview: true }],
+  ])('recreates the standard widget when %s changes', (input, value, params) => {
+    mockSmartCaptchaInstance.render.mockReturnValueOnce(2);
+    fixture.componentRef.setInput(input, value);
+    fixture.detectChanges();
+
+    expect(mockSmartCaptchaInstance.destroy).toHaveBeenCalledWith(1);
+    expect(mockSmartCaptchaInstance.render).toHaveBeenCalledTimes(2);
+    expect(mockSmartCaptchaInstance.render).toHaveBeenLastCalledWith(
+      expect.any(HTMLElement),
+      expect.objectContaining(params)
+    );
+    expect(mockSmartCaptchaInstance.subscribe).toHaveBeenCalledWith(
+      2,
+      'success',
+      expect.any(Function)
+    );
+    expect(mockSmartCaptchaInstance.execute).not.toHaveBeenCalled();
+  });
+
+  it('clears the previous widget token from the Angular form on recreation', () => {
+    fixture.destroy();
+    mockSmartCaptchaInstance.render.mockReturnValueOnce(2);
+    const form = TestBed.createComponent(CaptchaForm);
+    form.detectChanges();
+    const submit = form.debugElement.query(By.css('button'))
+      .nativeElement as HTMLButtonElement;
+    const success = mockSmartCaptchaInstance.subscribe.mock.calls.find(
+      ([id, event]: [number, string]) => id === 2 && event === 'success'
+    )[2];
+    success('old-token');
+    form.detectChanges();
+    expect(form.componentInstance.captcha.value).toBe('old-token');
+    expect(submit.disabled).toBe(false);
+
+    mockSmartCaptchaInstance.render.mockReturnValueOnce(3);
+    form.componentInstance.sitekey.set('new-site-key');
+    form.detectChanges();
+
+    expect(form.componentInstance.captcha.value).toBeNull();
+    expect(submit.disabled).toBe(true);
   });
 
   it('should render captcha after view init', fakeAsync(() => {
@@ -525,8 +591,7 @@ describe('InvisibleSmartCaptchaComponent', () => {
     mockSmartCaptchaInstance = {
       render: jest.fn().mockReturnValue(1),
       destroy: jest.fn(),
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      subscribe: jest.fn().mockReturnValue(() => {}),
+      subscribe: jest.fn().mockReturnValue(jest.fn()),
       execute: jest.fn(),
       setTheme: jest.fn(),
     };
@@ -574,6 +639,49 @@ describe('InvisibleSmartCaptchaComponent', () => {
 
   it('should have invisible set to true', () => {
     expect(component.invisible()).toBe(true);
+  });
+
+  it('starts the replacement widget once when its settings change while visible', () => {
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+    expect(mockSmartCaptchaInstance.execute).toHaveBeenCalledWith(1);
+    const subscribe = mockSmartCaptchaInstance.subscribe;
+    const unsubscribe = subscribe.mock.results[0].value;
+    mockSmartCaptchaInstance.render.mockReturnValueOnce(2);
+    subscribe.mockReturnValue(jest.fn());
+
+    fixture.componentRef.setInput('hideShield', true);
+    fixture.componentRef.setInput('shieldPosition', 'center-left');
+    fixture.detectChanges();
+
+    expect(mockSmartCaptchaInstance.destroy).toHaveBeenCalledWith(1);
+    expect(unsubscribe).toHaveBeenCalledTimes(6);
+    expect(mockSmartCaptchaInstance.render).toHaveBeenCalledTimes(2);
+    expect(mockSmartCaptchaInstance.render).toHaveBeenLastCalledWith(
+      expect.any(HTMLElement),
+      expect.objectContaining({ hideShield: true, shieldPosition: 'center-left' })
+    );
+    expect(mockSmartCaptchaInstance.execute.mock.calls).toEqual([[1], [2]]);
+    expect(subscribe.mock.invocationCallOrder.at(-1)).toBeLessThan(
+      mockSmartCaptchaInstance.execute.mock.invocationCallOrder[1]
+    );
+  });
+
+  it('applies the new settings before starting a challenge in the same update', () => {
+    mockSmartCaptchaInstance.render.mockReturnValueOnce(2);
+    fixture.componentRef.setInput('shieldPosition', 'center-right');
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+
+    expect(mockSmartCaptchaInstance.execute.mock.calls).toEqual([[2]]);
+  });
+
+  it('applies a theme update to the existing widget', () => {
+    fixture.componentRef.setInput('theme', 'dark');
+    fixture.detectChanges();
+
+    expect(mockSmartCaptchaInstance.setTheme).toHaveBeenCalledWith(1, 'dark');
+    expect(mockSmartCaptchaInstance.render).toHaveBeenCalledTimes(1);
   });
 
   it('should execute captcha when visible input changes to true', fakeAsync(() => {

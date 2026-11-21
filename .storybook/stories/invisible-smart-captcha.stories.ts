@@ -16,6 +16,7 @@ const meta: Meta<InvisibleSmartCaptchaComponent> = {
   },
   argTypes: {
     sitekey: { control: 'text' },
+    language: { control: 'select', options: ['ru', 'en', 'be', 'kk', 'tt', 'uk', 'uz', 'tr'] },
     visible: { control: 'boolean', description: 'Start the invisible challenge' },
     test: { control: 'boolean' },
     hideShield: {
@@ -26,7 +27,10 @@ const meta: Meta<InvisibleSmartCaptchaComponent> = {
     },
     shieldPosition: {
       control: 'select',
-      options: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+      options: [
+        'top-left', 'center-left', 'bottom-left',
+        'top-right', 'center-right', 'bottom-right',
+      ],
     },
   },
   args: {
@@ -42,17 +46,13 @@ const meta: Meta<InvisibleSmartCaptchaComponent> = {
   },
   render: (args) => ({
     props: args,
-    // Yandex applies these settings during render; recreate the widget when they change.
     template: `
-      @for (config of [{ key: sitekey, hidden: hideShield, position: shieldPosition, test: test }];
-            track config.key + ':' + config.hidden + ':' + config.position + ':' + config.test) {
-        <invisible-smart-captcha
-          [sitekey]="config.key" [hideShield]="config.hidden" [shieldPosition]="config.position"
-          [test]="config.test" [visible]="visible"
-          (success)="success($event)" (challengeVisible)="challengeVisible()"
-          (challengeHidden)="challengeHidden()" (networkError)="networkError()"
-          (javascriptError)="javascriptError($event)" />
-      }
+      <invisible-smart-captcha
+        [sitekey]="sitekey" [language]="language" [test]="test" [visible]="visible"
+        [hideShield]="hideShield" [shieldPosition]="shieldPosition"
+        (success)="success($event)" (challengeVisible)="challengeVisible()"
+        (challengeHidden)="challengeHidden()" (networkError)="networkError()"
+        (javascriptError)="javascriptError($event)" />
     `,
   }),
 };

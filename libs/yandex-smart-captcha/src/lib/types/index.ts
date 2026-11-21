@@ -28,7 +28,13 @@ export interface SmartCaptchaParams {
   theme?: 'light' | 'dark' | 'auto';
   invisible?: boolean;
   hideShield?: boolean;
-  shieldPosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  shieldPosition?:
+    | 'top-left'
+    | 'center-left'
+    | 'bottom-left'
+    | 'top-right'
+    | 'center-right'
+    | 'bottom-right';
   test?: boolean;
   webview?: boolean;
 }
