@@ -43,6 +43,7 @@
       }
     }
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+    <br>
     <button type="submit" [disabled]="checking() || submitted()">
       {{ checking() ? 'Checking…' : (isInvisible() ? 'Send message' : 'Create account') }}
     </button>
