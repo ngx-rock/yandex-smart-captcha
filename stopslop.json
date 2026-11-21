@@ -1,0 +1,26 @@
+{
+  "$schema": "https://unpkg.com/stopslop@2.0.0/schema.json",
+  "ignore": [
+    ".storybook/**",
+    "**/*.spec.*",
+    "**/*.test.*",
+    "**/test-setup.*",
+    "**/jest.config.*",
+    "**/jest.preset.*"
+  ],
+  "deadCode": {
+    "production": true,
+    "orphans": false
+  },
+  "knip": {
+    "entry": ["libs/yandex-smart-captcha/src/index.ts!"],
+    "project": [
+      "libs/yandex-smart-captcha/src/**/*.ts!",
+      "!**/*.spec.*!",
+      "!**/*.test.*!",
+      "!**/test-setup.*!"
+    ],
+    "jest": false,
+    "storybook": false
+  }
+}

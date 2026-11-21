@@ -1,0 +1,6 @@
+{
+  "paths": ["libs/yandex-smart-captcha/src"],
+  "exclude": ["**/*.spec.*", "**/*.test.*", "**/test-setup.*"],
+  "minimumTokens": 50,
+  "angularInlineTemplates": true
+}

@@ -8,7 +8,7 @@
     "lint": "nx lint @ngx-rock/yandex-smart-captcha",
     "lint:stopslop": "stopslop .",
     "badge:stopslop": "stopslop . --format shields",
-    "badge:duplicates": "clone-alert libs/yandex-smart-captcha/src --exclude '**/*.spec.ts' --minimum-tokens 50 --angular-inline-templates --format shields --no-fail-on-violation",
+    "badge:duplicates": "clone-alert --format shields --no-fail-on-violation",
     "build": "nx build @ngx-rock/yandex-smart-captcha",
     "test": "nx run-many -t test",
     "test:coverage": "pnpm test --coverage",
