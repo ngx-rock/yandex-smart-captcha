@@ -57,7 +57,7 @@ function notifyApiReady(): void {
 
 @Component({
   selector: 'smart-captcha',
-  template: ` <div class="smart-captcha" #captchaContainer></div> `,
+  templateUrl: './captcha-container.html',
   styles: [
     `
       .smart-captcha {
@@ -421,33 +421,4 @@ export class SmartCaptchaComponent
   validate(): ValidationErrors | null {
     return !this.invisible() && !this._innerValue() ? { captchaRequired: true } : null;
   }
-}
-
-@Component({
-  selector: 'invisible-smart-captcha',
-  template: ` <div class="smart-captcha" #captchaContainer></div> `,
-  styles: [
-    `
-      .smart-captcha {
-        /* No height needed for invisible captcha */
-      }
-    `,
-  ],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InvisibleSmartCaptchaComponent),
-      multi: true,
-    },
-    {
-      provide: NG_VALIDATORS,
-      useExisting: forwardRef(() => InvisibleSmartCaptchaComponent),
-      multi: true,
-    },
-  ],
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class InvisibleSmartCaptchaComponent extends SmartCaptchaComponent {
-  override invisible = input(true);
 }

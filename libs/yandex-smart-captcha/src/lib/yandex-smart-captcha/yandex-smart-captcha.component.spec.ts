@@ -11,7 +11,7 @@ import {
   InvisibleSmartCaptchaComponent,
   SmartCaptchaComponent,
   startLoading,
-} from './';
+} from '../../index';
 import {
   ComponentFixture,
   fakeAsync,

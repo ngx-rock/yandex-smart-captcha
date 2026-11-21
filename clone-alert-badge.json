@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "clone-alert",
-  "message": "2.3%",
-  "color": "green"
+  "message": "0 clones",
+  "color": "brightgreen"
 }
