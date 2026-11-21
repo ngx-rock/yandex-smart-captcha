@@ -4,19 +4,18 @@
     "rootDir": ".",
     "sourceMap": true,
     "declaration": false,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2015",
-    "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "target": "es2022",
+    "module": "preserve",
+    "lib": ["es2022", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "baseUrl": ".",
     "paths": {
       "@ngx-rock/yandex-smart-captcha": [
-        "libs/yandex-smart-captcha/src/index.ts"
+        "./libs/yandex-smart-captcha/src/index.ts"
       ]
     }
   },

@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: '@ngx-rock/yandex-smart-captcha',
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],

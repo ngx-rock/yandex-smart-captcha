@@ -11,6 +11,7 @@ declare global {
 // Define interface for window.smartCaptcha
 export interface SmartCaptchaInstance {
   render: (container: HTMLElement, params: SmartCaptchaParams) => number;
+  reset?: (widgetId: number) => void;
   destroy: (widgetId: number) => void;
   executePromise: (widgetId?: number) => Promise<string>;
   subscribe: (

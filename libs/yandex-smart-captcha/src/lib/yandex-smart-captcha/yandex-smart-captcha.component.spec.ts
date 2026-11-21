@@ -1,4 +1,4 @@
-import { Component, DebugElement, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { By } from '@angular/platform-browser';
 import {
@@ -23,13 +23,14 @@ import {
   imports: [ReactiveFormsModule, SmartCaptchaComponent],
   template: `
     <form>
-      <smart-captcha [sitekey]="sitekey()" [formControl]="captcha" />
+      <smart-captcha [sitekey]="sitekey()" [invisible]="invisible()" [formControl]="captcha" />
       <button type="submit" [disabled]="captcha.invalid">Submit</button>
     </form>
   `,
 })
 class CaptchaForm {
   readonly sitekey = signal('test-site-key');
+  readonly invisible = signal(false);
   readonly captcha = new FormControl<string | null>(null);
 }
 
@@ -38,9 +39,6 @@ describe('SmartCaptchaComponent', () => {
   let fixture: ComponentFixture<SmartCaptchaComponent>;
   /* eslint-disable @typescript-eslint/no-explicit-any */
   let mockSmartCaptchaInstance: any;
-  let mockDocument: Document;
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  let captchaContainer: DebugElement;
 
   beforeEach(async () => {
     // Mock the SmartCaptcha global instance
@@ -50,6 +48,7 @@ describe('SmartCaptchaComponent', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       subscribe: jest.fn().mockReturnValue(() => {}), // Returns an unsubscribe function
       execute: jest.fn(),
+      reset: jest.fn(),
       setTheme: jest.fn(),
     };
 
@@ -80,14 +79,12 @@ describe('SmartCaptchaComponent', () => {
       ],
     }).compileComponents();
 
-    mockDocument = TestBed.inject(DOCUMENT);
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(SmartCaptchaComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('sitekey', 'test-site-key');
-    captchaContainer = fixture.debugElement.query(By.css('.smart-captcha'));
     fixture.detectChanges();
   });
 
@@ -134,6 +131,7 @@ describe('SmartCaptchaComponent', () => {
       ([id, event]: [number, string]) => id === 2 && event === 'success'
     )[2];
     success('old-token');
+    form.changeDetectorRef.markForCheck();
     form.detectChanges();
     expect(form.componentInstance.captcha.value).toBe('old-token');
     expect(submit.disabled).toBe(false);
@@ -144,6 +142,39 @@ describe('SmartCaptchaComponent', () => {
 
     expect(form.componentInstance.captcha.value).toBeNull();
     expect(submit.disabled).toBe(true);
+  });
+
+  it('resets the widget when its Angular form control is reset', () => {
+    fixture.destroy();
+    mockSmartCaptchaInstance.render.mockReturnValueOnce(2);
+    const form = TestBed.createComponent(CaptchaForm);
+    form.detectChanges();
+    const success = mockSmartCaptchaInstance.subscribe.mock.calls.find(
+      ([id, event]: [number, string]) => id === 2 && event === 'success'
+    )[2];
+    success('solved-token');
+
+    form.componentInstance.captcha.reset();
+    form.detectChanges();
+
+    expect(mockSmartCaptchaInstance.reset).toHaveBeenCalledWith(2);
+    expect(form.componentInstance.captcha.value).toBeNull();
+    expect(form.componentInstance.captcha.invalid).toBe(true);
+  });
+
+  it('revalidates the form when switching between standard and invisible modes', () => {
+    fixture.destroy();
+    const form = TestBed.createComponent(CaptchaForm);
+    form.detectChanges();
+    expect(form.componentInstance.captcha.errors).toEqual({ captchaRequired: true });
+
+    form.componentInstance.invisible.set(true);
+    form.detectChanges();
+    expect(form.componentInstance.captcha.valid).toBe(true);
+
+    form.componentInstance.invisible.set(false);
+    form.detectChanges();
+    expect(form.componentInstance.captcha.errors).toEqual({ captchaRequired: true });
   });
 
   it('should render captcha after view init', fakeAsync(() => {
@@ -291,8 +322,6 @@ describe('SmartCaptchaComponent', () => {
     challengeHiddenCallback();
     expect(challengeHiddenSpy).toHaveBeenCalled();
 
-    expect(consoleErrorSpy).toHaveBeenCalled();
-
     networkErrorCallback();
     expect(networkErrorSpy).toHaveBeenCalled();
 
@@ -309,6 +338,7 @@ describe('SmartCaptchaComponent', () => {
       col: 0,
       line: 0,
     });
+    consoleErrorSpy.mockRestore();
   }));
 
   it('should update value when success callback is triggered', fakeAsync(() => {
@@ -383,32 +413,6 @@ describe('SmartCaptchaComponent', () => {
     expect(component.validate()).toBeNull();
   });
 
-  it('should handle script loading errors', fakeAsync(() => {
-    // Test private method for error handling
-    const jsErrorSpy = jest.spyOn(component.javascriptError, 'emit');
-
-    // Mock the script element
-    const mockScript = document.createElement('script');
-    jest
-      .spyOn(component['renderer2'], 'createElement')
-      .mockReturnValue(mockScript);
-    jest
-      .spyOn(component['renderer2'], 'appendChild')
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      .mockImplementation(() => {});
-
-    // Force script load error
-    component['loadScript']();
-    (mockScript as any).onerror();
-
-    expect(jsErrorSpy).toHaveBeenCalled();
-    expect(jsErrorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: 'Unknown error on script loading',
-      })
-    );
-  }));
-
   it('should handle render errors by calling handleJavascriptError', fakeAsync(() => {
     // Set up all spies at the beginning
     const handleErrorSpy = jest.spyOn(
@@ -451,42 +455,6 @@ describe('SmartCaptchaComponent', () => {
     consoleErrorSpy.mockRestore();
   }));
 
-  it('should load script if smartCaptcha is not available', () => {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    delete (window as any).smartCaptcha;
-
-    startLoading.clear();
-
-    const loadScriptSpy = jest.spyOn(component as any, 'loadScript');
-
-    component.ngOnInit();
-
-    expect(loadScriptSpy).toHaveBeenCalled();
-  });
-
-  it('should not load script if already loading for same host', () => {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    delete (window as any).smartCaptcha;
-    startLoading.clear();
-
-    const loadScriptSpy = jest.spyOn(component as any, 'loadScript');
-
-    // First time should call loadScript
-    component.ngOnInit();
-    expect(loadScriptSpy).toHaveBeenCalled();
-
-    loadScriptSpy.mockClear();
-
-    // Create a new component with the same host
-    const newComponent = TestBed.createComponent(
-      SmartCaptchaComponent
-    ).componentInstance;
-    fixture.componentRef.setInput('sitekey', 'test-site-key');
-
-    // Second time should not call loadScript
-    newComponent.ngOnInit();
-    expect(loadScriptSpy).not.toHaveBeenCalled();
-  });
 });
 
 describe('invisible captcha with a delayed API', () => {
@@ -518,7 +486,9 @@ describe('invisible captcha with a delayed API', () => {
 
   afterEach(() => {
     fixture.destroy();
+    captchaScripts().forEach((script) => script.remove());
     startLoading.clear();
+    jest.restoreAllMocks();
   });
 
   function loadApi(): void {
@@ -526,6 +496,87 @@ describe('invisible captcha with a delayed API', () => {
     window.__onSmartCaptchaReady();
     TestBed.tick();
   }
+
+  function createCaptcha(key: string): ComponentFixture<InvisibleSmartCaptchaComponent> {
+    const captcha = TestBed.createComponent(InvisibleSmartCaptchaComponent);
+    captcha.componentRef.setInput('sitekey', key);
+    captcha.detectChanges();
+    return captcha;
+  }
+
+  function captchaScripts(): HTMLScriptElement[] {
+    return [...document.querySelectorAll<HTMLScriptElement>('script[src*="captcha.js?"]')];
+  }
+
+  it('keeps the remaining listener when earlier widgets are destroyed out of order', () => {
+    fixture.detectChanges();
+    const second = createCaptcha('second-key');
+    createCaptcha('third-key');
+    fixture.destroy();
+    second.destroy();
+
+    loadApi();
+
+    expect(api.render).toHaveBeenCalledTimes(1);
+    expect(api.render).toHaveBeenCalledWith(
+      expect.any(HTMLElement),
+      expect.objectContaining({ sitekey: 'third-key' })
+    );
+  });
+
+  it('notifies all waiting widgets and allows the next mount to retry a failed load', () => {
+    jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    const firstError = jest.fn();
+    const secondError = jest.fn();
+    const baseline = captchaScripts().length;
+    fixture.componentInstance.javascriptError.subscribe(firstError);
+    fixture.detectChanges();
+    const second = createCaptcha('second-key');
+    second.componentInstance.javascriptError.subscribe(secondError);
+    expect(captchaScripts()).toHaveLength(baseline + 1);
+
+    captchaScripts().at(-1)?.dispatchEvent(new Event('error'));
+    expect(firstError).toHaveBeenCalledTimes(1);
+    expect(secondError).toHaveBeenCalledTimes(1);
+    createCaptcha('retry-key');
+    expect(captchaScripts()).toHaveLength(baseline + 1);
+
+    loadApi();
+    expect(api.render).toHaveBeenCalledTimes(3);
+    expect(api.render).toHaveBeenCalledWith(
+      expect.any(HTMLElement),
+      expect.objectContaining({ sitekey: 'second-key' })
+    );
+    expect(api.render).toHaveBeenCalledWith(
+      expect.any(HTMLElement),
+      expect.objectContaining({ sitekey: 'retry-key' })
+    );
+  });
+
+  it('renders all waiting widgets on script load if another integration owns the global callback', () => {
+    window.__onSmartCaptchaReady = jest.fn();
+    fixture.detectChanges();
+    createCaptcha('second-key');
+    const script = captchaScripts().at(-1);
+    window.smartCaptcha = api as unknown as Window['smartCaptcha'];
+
+    script?.dispatchEvent(new Event('load'));
+    expect(api.render).toHaveBeenCalledTimes(2);
+
+    createCaptcha('preloaded-key');
+    expect(captchaScripts().at(-1)).toBe(script);
+    expect(captchaScripts()).toHaveLength(1);
+    expect(api.render).toHaveBeenCalledTimes(3);
+  });
+
+  it('adds HTTPS to a bare proxy host that starts with http', () => {
+    fixture.componentRef.setInput('host', 'http-proxy.example.com');
+    fixture.detectChanges();
+
+    expect(captchaScripts().at(-1)?.src).toBe(
+      'https://http-proxy.example.com/captcha.js?render=onload&onload=__onSmartCaptchaReady'
+    );
+  });
 
   it('executes once when visible is initially true before the API loads', fakeAsync(() => {
     fixture.componentRef.setInput('visible', true);
@@ -790,10 +841,6 @@ describe('InvisibleSmartCaptchaComponent', () => {
   it('should emit challenge events correctly', fakeAsync(() => {
     const visibleSpy = jest.spyOn(component.challengeVisible, 'emit');
     const hiddenSpy = jest.spyOn(component.challengeHidden, 'emit');
-    const consoleSpy = jest
-      .spyOn(console, 'error')
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      .mockImplementation(() => {});
 
     component.ngAfterViewInit();
     tick();
@@ -811,7 +858,6 @@ describe('InvisibleSmartCaptchaComponent', () => {
     visibleCallback();
     hiddenCallback();
 
-    expect(consoleSpy).toHaveBeenCalled();
     expect(visibleSpy).toHaveBeenCalled();
     expect(hiddenSpy).toHaveBeenCalled();
   }));

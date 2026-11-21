@@ -2,7 +2,6 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  DOCUMENT,
   ElementRef,
   forwardRef,
   inject,
@@ -24,8 +23,8 @@ import {
   ValidationErrors,
   Validator,
 } from '@angular/forms';
-import { isPlatformBrowser } from '@angular/common';
-import { isValidHost } from '../helpers/is-valid-host';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { HTTP_PROTOCOL, isValidHost } from '../helpers/is-valid-host';
 import {
   JavascriptErrorPayload,
   SmartCaptchaInstance,
@@ -33,13 +32,28 @@ import {
 } from '../types';
 
 const API_LINK = (host = 'smartcaptcha.cloud.yandex.ru') => {
-  const base = /^https?/.test(host) ? host : `https://${host}`;
+  const base = HTTP_PROTOCOL.test(host) ? host : `https://${host}`;
   return `${base}/captcha.js?render=onload&onload=__onSmartCaptchaReady`;
 };
 
-// Shared callbacks array
-const callbacks: (() => void)[] = [];
+interface CaptchaLoadListener {
+  ready: (api: SmartCaptchaInstance) => void;
+  error: (error: JavascriptErrorPayload) => void;
+}
+
+const pendingLoads = new Map<string, Set<CaptchaLoadListener>>();
 export const startLoading = new Map<string, boolean>();
+
+function notifyApiReady(): void {
+  const api = window.smartCaptcha;
+  if (!api) return;
+
+  const groups = [...pendingLoads.values()];
+  pendingLoads.clear();
+  for (const group of groups) {
+    group.forEach((listener) => listener.ready(api));
+  }
+}
 
 @Component({
   selector: 'smart-captcha',
@@ -115,19 +129,24 @@ export class SmartCaptchaComponent
     // onTouched
   };
   private readonly _innerValue = signal<string | null>(null);
-  private callbackIndex: number | null = null;
+  private removeLoadListener?: () => void;
+  private onValidatorChange?: () => void;
 
-  ngOnChanges(changes: SimpleChanges<SmartCaptchaComponent>): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['invisible']) {
+      this.onValidatorChange?.();
+    }
+
     if (!this.smartCaptchaInstance || this.destroyed) {
       return;
     }
     if (
-      changes.sitekey ||
-      changes.language ||
-      changes.test ||
-      changes.webview ||
-      changes.invisible ||
-      (this.invisible() && (changes.hideShield || changes.shieldPosition))
+      changes['sitekey'] ||
+      changes['language'] ||
+      changes['test'] ||
+      changes['webview'] ||
+      changes['invisible'] ||
+      (this.invisible() && (changes['hideShield'] || changes['shieldPosition']))
     ) {
       if (this.widgetId !== undefined) {
         this.destroyWidget();
@@ -140,51 +159,69 @@ export class SmartCaptchaComponent
       return;
     }
 
-    if (changes.theme && this.theme() && this.widgetId !== undefined) {
+    if (changes['theme'] && this.theme() && this.widgetId !== undefined) {
       this.smartCaptchaInstance.setTheme?.(this.widgetId, this.theme());
     }
-    if (changes.visible) {
+    if (changes['visible']) {
       this.executeWhenVisible();
     }
   }
 
   ngOnInit(): void {
-    if (!isPlatformBrowser(this.platformId)) {
+    if (!isPlatformBrowser(this.platformId) || typeof window === 'undefined') {
       return;
     }
 
-    if (this.host() !== undefined && !isValidHost(this.host())) {
+    const host = this.host();
+    if (host !== undefined && !isValidHost(host)) {
       console.error(
-        `[SmartCaptcha] ${this.host()} host is invalid. It should be of a kind: domain.ru, localhost:3000`
+        `[SmartCaptcha] ${host} host is invalid. It should be of a kind: domain.ru, localhost:3000`
       );
       return;
     }
 
-    if (typeof window !== 'undefined') {
-      // Setup global callback if not already defined
-      if (window.__onSmartCaptchaReady === undefined) {
-        window.__onSmartCaptchaReady = () => {
-          callbacks.forEach((callback) => callback());
-        };
-      }
+    if (window.smartCaptcha) {
+      this.smartCaptchaInstance = window.smartCaptcha;
+      return;
+    }
 
-      // Check if SmartCaptcha is already loaded
-      if (window.smartCaptcha) {
-        this.smartCaptchaInstance = window.smartCaptcha;
-      }
+    window.__onSmartCaptchaReady ??= notifyApiReady;
 
-      // Add our callback to the shared array
-      this.callbackIndex = callbacks.push(() => {
-        this.smartCaptchaInstance = window.smartCaptcha;
+    const hostKey = host || 'default';
+    const src = API_LINK(host);
+    const listeners = pendingLoads.get(hostKey) ?? new Set<CaptchaLoadListener>();
+    const listener: CaptchaLoadListener = {
+      ready: (api) => {
+        this.removeLoadListener = undefined;
+        this.smartCaptchaInstance = api;
         this.renderCaptcha();
-      });
-
-      // Load script if not already loading
-      const hostKey = this.host() || 'default';
-      if (!startLoading.get(hostKey)) {
-        this.loadScript();
-        startLoading.set(hostKey, true);
+      },
+      error: (error) => this.handleJavascriptError(error),
+    };
+    listeners.add(listener);
+    pendingLoads.set(hostKey, listeners);
+    this.removeLoadListener = () => {
+      listeners.delete(listener);
+      if (listeners.size === 0 && pendingLoads.get(hostKey) === listeners) {
+        pendingLoads.delete(hostKey);
       }
+    };
+
+    this.errorEventHandler = (event) => {
+      if (event.filename === src) {
+        this.handleJavascriptError({
+          filename: event.filename,
+          message: event.message,
+          col: event.colno,
+          line: event.lineno,
+        });
+      }
+    };
+    window.addEventListener('error', this.errorEventHandler);
+
+    if (!startLoading.get(hostKey)) {
+      startLoading.set(hostKey, true);
+      this.loadScript(hostKey, src);
     }
   }
 
@@ -197,11 +234,7 @@ export class SmartCaptchaComponent
   ngOnDestroy(): void {
     this.destroyed = true;
 
-    // Remove callback from shared array
-    if (this.callbackIndex !== null) {
-      callbacks.splice(this.callbackIndex - 1, 1);
-    }
-
+    this.removeLoadListener?.();
     this.destroyWidget();
 
     // Remove error event handler
@@ -225,46 +258,29 @@ export class SmartCaptchaComponent
     }
   }
 
-  private loadScript(): void {
-    const src = API_LINK(this.host());
-    const script = this.renderer2.createElement('script');
+  private loadScript(hostKey: string, src: string): void {
+    const script: HTMLScriptElement = this.renderer2.createElement('script');
     this.renderer2.setAttribute(script, 'src', src);
     this.renderer2.setAttribute(script, 'type', 'text/javascript');
     this.renderer2.setAttribute(script, 'crossOrigin', 'anonymous');
 
-    // Handle regular onload/onerror
-    script.onload = () => {
-      if (window.smartCaptcha && !this.smartCaptchaInstance) {
-        this.smartCaptchaInstance = window.smartCaptcha;
-        this.renderCaptcha();
-      }
-    };
-
+    script.onload = notifyApiReady;
     script.onerror = () => {
-      this.handleJavascriptError({
+      startLoading.delete(hostKey);
+      script.remove();
+      const listeners = pendingLoads.get(hostKey);
+      if (!listeners) return;
+
+      const error = {
         filename: src,
         message: 'Unknown error on script loading',
         col: 0,
         line: 0,
-      });
-    };
-
-    // Add error event listener for JS errors in the captcha script
-    if (typeof window !== 'undefined') {
-      this.errorEventHandler = (e: ErrorEvent) => {
-        if (e.filename?.indexOf(src) === 0) {
-          this.handleJavascriptError({
-            filename: e.filename,
-            message: e.message,
-            col: e.colno,
-            line: e.lineno,
-          });
-        }
       };
-      window.addEventListener('error', this.errorEventHandler);
-    }
-
-    // Add script to document
+      for (const listener of [...listeners]) {
+        if (listeners.has(listener)) listener.error(error);
+      }
+    };
     this.renderer2.appendChild(this.document.body, script);
   }
 
@@ -330,7 +346,6 @@ export class SmartCaptchaComponent
         this.widgetId,
         'challenge-hidden',
         () => {
-          console.error('hidden');
           this.challengeHidden.emit();
         }
       ),
@@ -384,8 +399,11 @@ export class SmartCaptchaComponent
   }
 
   // ControlValueAccessor methods
-  writeValue(value: string): void {
-    this._innerValue.set(value); // Set the signal value
+  writeValue(value: string | null): void {
+    this._innerValue.set(value);
+    if (value === null && this.widgetId !== undefined) {
+      this.smartCaptchaInstance?.reset?.(this.widgetId);
+    }
   }
 
   registerOnChange(fn: (value: string | null) => void): void {
@@ -396,20 +414,12 @@ export class SmartCaptchaComponent
     this.onTouched = fn;
   }
 
-  // Validator method
+  registerOnValidatorChange(fn: () => void): void {
+    this.onValidatorChange = fn;
+  }
+
   validate(): ValidationErrors | null {
-    // When using invisible captcha, don't validate until user interacts
-    if (this.invisible() && !this._innerValue()) {
-      return null;
-    }
-
-    // For standard captcha, require token
-    if (!this.invisible() && !this._innerValue()) {
-      // Access signal value
-      return { captchaRequired: true };
-    }
-
-    return null;
+    return !this.invisible() && !this._innerValue() ? { captchaRequired: true } : null;
   }
 }
 

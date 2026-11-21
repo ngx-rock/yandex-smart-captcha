@@ -20,6 +20,8 @@ describe('isValidHost', () => {
   it('should return true for valid localhost domains', () => {
     expect(isValidHost('localhost')).toBe(true);
     expect(isValidHost('localhost:4200')).toBe(true);
+    expect(isValidHost('http://localhost:4200')).toBe(true);
+    expect(isValidHost('https://localhost')).toBe(true);
   });
 
   it('should return true for valid IPv4 addresses with port', () => {

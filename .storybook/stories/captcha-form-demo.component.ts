@@ -1,4 +1,11 @@
-import { Component, computed, effect, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  input,
+  signal,
+} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   InvisibleSmartCaptchaComponent,
@@ -9,6 +16,7 @@ import {
   selector: 'captcha-form-demo',
   imports: [ReactiveFormsModule, SmartCaptchaComponent, InvisibleSmartCaptchaComponent],
   templateUrl: './captcha-form-demo.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './captcha-form-demo.component.css',
 })
 export class CaptchaFormDemoComponent {
