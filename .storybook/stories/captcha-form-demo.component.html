@@ -1,101 +1,58 @@
-<div class="demo-page">
-  <div class="demo-shell">
-    <header class="demo-header">
-      <div class="brand"><span class="brand-mark" aria-hidden="true">✳</span> Form lab</div>
-      <div class="header-note"><span class="status-dot"></span> Interactive example</div>
-    </header>
-
-    <main class="demo-layout">
-      <section class="form-panel" aria-labelledby="form-title">
-        <div class="form-intro">
-          <span class="scenario">{{ isInvisible() ? 'Invisible verification' : 'Visible verification' }}</span>
-          <h1 id="form-title">{{ isInvisible() ? 'Let’s talk.' : 'Make yourself at home.' }}</h1>
-          <p>{{ isInvisible() ? 'Send us a note and we’ll get back to you.' : 'Create your account to get started.' }}</p>
-        </div>
-
-        @if (submitted()) {
-          <div class="success-panel" role="status">
-            <span class="success-icon" aria-hidden="true">✓</span>
-            <h2>{{ isInvisible() ? 'Message ready' : 'You’re all set' }}</h2>
-            <p>Verification succeeded. This is a demo, so nothing was sent to a server.</p>
-            <button type="button" class="secondary-button" (click)="reset()">Try again</button>
-          </div>
-        } @else {
-          <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-            <div class="field">
-              <label for="demo-name">Your name</label>
-              <input id="demo-name" type="text" formControlName="name" autocomplete="name"
-                placeholder="Alex Morgan" [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid"
-                [attr.aria-describedby]="form.controls.name.touched && form.controls.name.invalid ? 'name-error' : null" />
-              @if (form.controls.name.touched && form.controls.name.invalid) {
-                <span class="field-error" id="name-error">Enter your name.</span>
-              }
-            </div>
-            <div class="field">
-              <label for="demo-email">Email address</label>
-              <input id="demo-email" type="email" formControlName="email" autocomplete="email"
-                placeholder="alex@example.com" [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
-                [attr.aria-describedby]="form.controls.email.touched && form.controls.email.invalid ? 'email-error' : null" />
-              @if (form.controls.email.touched && form.controls.email.invalid) {
-                <span class="field-error" id="email-error">Enter a valid email address.</span>
-              }
-            </div>
-            @if (isInvisible()) {
-              <div class="field">
-                <label for="demo-message">Your message</label>
-                <textarea id="demo-message" formControlName="message" rows="3" placeholder="What can we help with?"
-                  [attr.aria-invalid]="form.controls.message.touched && form.controls.message.invalid"
-                  [attr.aria-describedby]="form.controls.message.touched && form.controls.message.invalid ? 'message-error' : null"></textarea>
-                @if (form.controls.message.touched && form.controls.message.invalid) {
-                  <span class="field-error" id="message-error">Enter a message.</span>
-                }
-              </div>
-            }
-
-            @if (showCaptcha()) {
-              @if (isInvisible()) {
-                <invisible-smart-captcha [sitekey]="sitekey" [test]="true" [language]="'en'" [visible]="visible()"
-                  formControlName="captcha" (success)="onSuccess()" (tokenExpired)="onExpired()"
-                  (networkError)="onError()" (javascriptError)="onError()"
-                  (challengeVisible)="record('Challenge opened')" (challengeHidden)="onChallengeHidden()" />
-              } @else {
-                <div class="captcha-field">
-                  <smart-captcha [sitekey]="sitekey" [test]="true" [language]="'en'" formControlName="captcha"
-                    (success)="onSuccess()" (tokenExpired)="onExpired()" (networkError)="onError()"
-                    (javascriptError)="onError()" (challengeVisible)="record('Challenge opened')"
-                    (challengeHidden)="onChallengeHidden()" />
-                </div>
-              }
-            }
-            @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
-            <button class="primary-button" type="submit" [disabled]="checking()">
-              {{ checking() ? 'Checking…' : (isInvisible() ? 'Send message' : 'Create account') }}
-            </button>
-            <p class="privacy-note">Demo only. Your details stay in this browser.</p>
-          </form>
+<main class="demo">
+  <h1>{{ isInvisible() ? 'Contact us' : 'Create an account' }}</h1>
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <label for="demo-name">Name</label>
+      <input id="demo-name" type="text" formControlName="name" autocomplete="name"
+        [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid"
+        [attr.aria-describedby]="form.controls.name.touched && form.controls.name.invalid ? 'name-error' : null" />
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+        <span class="error" id="name-error">Enter your name.</span>
+      }
+    </div>
+    <div class="field">
+      <label for="demo-email">Email</label>
+      <input id="demo-email" type="email" formControlName="email" autocomplete="email"
+        [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
+        [attr.aria-describedby]="form.controls.email.touched && form.controls.email.invalid ? 'email-error' : null" />
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <span class="error" id="email-error">Enter a valid email address.</span>
+      }
+    </div>
+    @if (isInvisible()) {
+      <div class="field">
+        <label for="demo-message">Message</label>
+        <textarea id="demo-message" formControlName="message" rows="3"
+          [attr.aria-invalid]="form.controls.message.touched && form.controls.message.invalid"
+          [attr.aria-describedby]="form.controls.message.touched && form.controls.message.invalid ? 'message-error' : null"></textarea>
+        @if (form.controls.message.touched && form.controls.message.invalid) {
+          <span class="error" id="message-error">Enter a message.</span>
         }
-      </section>
+      </div>
+    }
 
-      <aside class="explanation" aria-label="About this example">
-        <div class="explanation-top">
-          <span class="spark" aria-hidden="true">✳</span>
-          <p class="explanation-kicker">{{ isInvisible() ? 'Behind the button' : 'A small pause for security' }}</p>
-          <h2>{{ isInvisible() ? 'A smoother way to verify.' : 'Good forms start with trust.' }}</h2>
-          <p>{{ isInvisible() ? 'The challenge starts when the form is submitted. If needed, a verification window appears.' : 'The visitor completes the captcha before submitting. The token is added to the Angular form automatically.' }}</p>
-        </div>
-        <div class="activity">
-          <div class="activity-heading"><h3>Verification activity</h3><span>Test mode</span></div>
-          <p class="activity-status"><span [class.verified]="verified()" class="activity-dot"></span>{{ verified() ? 'Verified' : (checking() ? 'Checking' : 'Waiting for verification') }}</p>
-          @if (events().length) {
-            <ul aria-live="polite">
-              @for (event of events(); track $index) { <li>{{ event }}</li> }
-            </ul>
-          } @else {
-            <p class="activity-empty">Events will appear here as you interact with the form.</p>
-          }
-        </div>
-        <p class="demo-disclaimer">Real Yandex SmartCaptcha · test mode</p>
-      </aside>
-    </main>
-  </div>
-</div>
+    @if (showCaptcha()) {
+      @if (isInvisible()) {
+        <invisible-smart-captcha [sitekey]="sitekey" [test]="true" [language]="'en'" [visible]="visible()"
+          formControlName="captcha" (success)="onSuccess()" (tokenExpired)="onExpired()"
+          (networkError)="onError()" (javascriptError)="onError()" (challengeHidden)="onChallengeHidden()" />
+      } @else {
+        <smart-captcha [sitekey]="sitekey" [test]="true" [language]="'en'" formControlName="captcha"
+          (success)="onSuccess()" (tokenExpired)="onExpired()" (networkError)="onError()"
+          (javascriptError)="onError()" />
+      }
+    }
+    @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+    <button type="submit" [disabled]="checking() || submitted()">
+      {{ checking() ? 'Checking…' : (isInvisible() ? 'Send message' : 'Create account') }}
+    </button>
+    @if (submitted()) {
+      <div class="result" role="status">
+        <p>Captcha passed. The form was not sent — this is a demo.</p>
+        <button class="reset" type="button" (click)="reset()">Try again</button>
+      </div>
+    } @else if (verified()) {
+      <p class="result" role="status">Captcha passed.</p>
+    }
+  </form>
+</main>

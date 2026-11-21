@@ -22,7 +22,6 @@ export class CaptchaFormDemoComponent {
   readonly submitted = signal(false);
   readonly attempted = signal(false);
   readonly error = signal('');
-  readonly events = signal<string[]>([]);
   readonly form = new FormGroup({
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
@@ -52,7 +51,6 @@ export class CaptchaFormDemoComponent {
     if (this.isInvisible() && !this.verified()) {
       this.checking.set(true);
       this.visible.set(true);
-      this.record('Verification requested');
       return;
     }
 
@@ -68,7 +66,6 @@ export class CaptchaFormDemoComponent {
     this.checking.set(false);
     this.visible.set(false);
     this.error.set('');
-    this.record('Verification completed');
     if (this.isInvisible() && this.attempted() && this.fieldsValid) this.finish();
   }
 
@@ -77,24 +74,17 @@ export class CaptchaFormDemoComponent {
     this.checking.set(false);
     this.visible.set(false);
     this.error.set('Verification expired. Please try again.');
-    this.record('Verification expired');
   }
 
   onError(): void {
     this.checking.set(false);
     this.visible.set(false);
     this.error.set('Could not load verification. Check your connection and reload the page.');
-    this.record('Verification error');
   }
 
   onChallengeHidden(): void {
     this.visible.set(false);
     this.checking.set(false);
-    this.record('Challenge closed');
-  }
-
-  record(event: string): void {
-    this.events.update((items) => [event, ...items].slice(0, 5));
   }
 
   reset(): void {
@@ -105,7 +95,6 @@ export class CaptchaFormDemoComponent {
     this.checking.set(false);
     this.visible.set(false);
     this.error.set('');
-    this.events.set([]);
     this.showCaptcha.set(false);
     setTimeout(() => this.showCaptcha.set(true));
   }
@@ -113,6 +102,5 @@ export class CaptchaFormDemoComponent {
   private finish(): void {
     this.checking.set(false);
     this.submitted.set(true);
-    this.record('Demo submitted');
   }
 }
