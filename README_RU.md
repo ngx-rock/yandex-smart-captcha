@@ -1,6 +1,6 @@
 # Angular Yandex Smart Captcha
 
-[![npm version](https://badge.fury.io/js/@ngx-rock%2Fyandex-smart-captcha.svg)](https://badge.fury.io/js/@ngx-rock%2Fyandex-smart-captcha) [![GitHub license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/ngx-rock/memoize-pipe/blob/main/LICENSE)
+[![StopSlop](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/ngx-rock/yandex-smart-captcha/main/stopslop-badge.json)](https://github.com/BaryshevRS/stopslop) [![Clone Alert](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/ngx-rock/yandex-smart-captcha/main/clone-alert-badge.json)](https://github.com/BaryshevRS/clone-alert) [![CI](https://github.com/ngx-rock/yandex-smart-captcha/actions/workflows/ci.yml/badge.svg)](https://github.com/ngx-rock/yandex-smart-captcha/actions/workflows/ci.yml) [![npm version](https://img.shields.io/npm/v/@ngx-rock/yandex-smart-captcha.svg)](https://www.npmjs.com/package/@ngx-rock/yandex-smart-captcha)
 
 Angular библиотека для интеграции Yandex SmartCaptcha в ваше приложение. Пакет предоставляет Angular-компоненты-обертки для JavaScript библиотеки Yandex SmartCaptcha, поддерживая как стандартный, так и невидимый режим работы. 
 Компоненты поддерживают реактивные формы Angular и режим `zoneless`.
