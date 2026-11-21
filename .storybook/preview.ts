@@ -4,6 +4,7 @@ const preview: Preview = {
   parameters: {
     controls: { expanded: true },
     layout: 'centered',
+    options: { storySort: { order: ['Examples', 'SmartCaptcha'] } },
   },
 };
 
