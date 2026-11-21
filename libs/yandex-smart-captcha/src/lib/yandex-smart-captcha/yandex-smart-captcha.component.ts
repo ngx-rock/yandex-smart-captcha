@@ -111,6 +111,7 @@ export class SmartCaptchaComponent
   };
   private readonly _innerValue = signal<string | null>(null);
   private callbackIndex: number | null = null;
+  private visibleExecuted = false;
 
   constructor() {
     // Effect for theme changes
@@ -124,18 +125,25 @@ export class SmartCaptchaComponent
       }
     });
 
-    // Effect for visible changes (Invisible Captcha)
     effect(() => {
-      if (
-        this.visible() &&
-        this.invisible() &&
-        this.smartCaptchaInstance &&
-        typeof this.widgetId === 'number' &&
-        !this.destroyed
-      ) {
-        this.smartCaptchaInstance.execute(this.widgetId);
-      }
+      this.executeWhenVisible();
     });
+  }
+
+  private executeWhenVisible(): void {
+    if (!this.visible() || !this.invisible()) {
+      this.visibleExecuted = false;
+      return;
+    }
+    if (
+      !this.visibleExecuted &&
+      this.smartCaptchaInstance &&
+      typeof this.widgetId === 'number' &&
+      !this.destroyed
+    ) {
+      this.visibleExecuted = true;
+      this.smartCaptchaInstance.execute(this.widgetId);
+    }
   }
 
   ngOnInit(): void {
@@ -276,6 +284,7 @@ export class SmartCaptchaComponent
     try {
       this.widgetId = this.smartCaptchaInstance.render(container, params);
       this.setupSubscriptions();
+      this.executeWhenVisible();
     } catch (error: unknown) {
       console.error('[SmartCaptcha] Error rendering captcha widget:', error);
 

@@ -423,6 +423,98 @@ describe('SmartCaptchaComponent', () => {
   });
 });
 
+describe('invisible captcha with a delayed API', () => {
+  let fixture: ComponentFixture<InvisibleSmartCaptchaComponent>;
+  let api: {
+    render: jest.Mock;
+    destroy: jest.Mock;
+    subscribe: jest.Mock;
+    execute: jest.Mock;
+  };
+
+  beforeEach(async () => {
+    api = {
+      render: jest.fn().mockReturnValue(42),
+      destroy: jest.fn(),
+      subscribe: jest.fn().mockReturnValue(jest.fn()),
+      execute: jest.fn(),
+    };
+    window.smartCaptcha = undefined as unknown as Window['smartCaptcha'];
+    window.__onSmartCaptchaReady =
+      undefined as unknown as Window['__onSmartCaptchaReady'];
+    startLoading.clear();
+    await TestBed.configureTestingModule({
+      imports: [InvisibleSmartCaptchaComponent],
+    }).compileComponents();
+    fixture = TestBed.createComponent(InvisibleSmartCaptchaComponent);
+    fixture.componentRef.setInput('sitekey', 'test-site-key');
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    startLoading.clear();
+  });
+
+  function loadApi(): void {
+    window.smartCaptcha = api as unknown as Window['smartCaptcha'];
+    window.__onSmartCaptchaReady();
+    TestBed.tick();
+  }
+
+  it('executes once when visible is initially true before the API loads', fakeAsync(() => {
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+    TestBed.tick();
+    expect(api.execute).not.toHaveBeenCalled();
+
+    loadApi();
+    tick();
+    expect(api.execute).toHaveBeenCalledTimes(1);
+    expect(api.execute).toHaveBeenCalledWith(42);
+    fixture.detectChanges();
+    TestBed.tick();
+    expect(api.execute).toHaveBeenCalledTimes(1);
+  }));
+
+  it('executes when visible becomes true while the API is loading', fakeAsync(() => {
+    fixture.detectChanges();
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+    TestBed.tick();
+    loadApi();
+    tick();
+    expect(api.execute).toHaveBeenCalledTimes(1);
+    expect(api.execute).toHaveBeenCalledWith(42);
+  }));
+
+  it('does not execute if visibility is cancelled before the API loads', fakeAsync(() => {
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+    TestBed.tick();
+    fixture.componentRef.setInput('visible', false);
+    fixture.detectChanges();
+    TestBed.tick();
+    loadApi();
+    tick();
+    expect(api.execute).not.toHaveBeenCalled();
+  }));
+
+  it('executes again after visibility switches off and on', fakeAsync(() => {
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+    TestBed.tick();
+    loadApi();
+    fixture.componentRef.setInput('visible', false);
+    fixture.detectChanges();
+    TestBed.tick();
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+    TestBed.tick();
+    tick();
+    expect(api.execute).toHaveBeenCalledTimes(2);
+  }));
+});
+
 describe('InvisibleSmartCaptchaComponent', () => {
   let component: InvisibleSmartCaptchaComponent;
   let fixture: ComponentFixture<InvisibleSmartCaptchaComponent>;
@@ -491,6 +583,19 @@ describe('InvisibleSmartCaptchaComponent', () => {
     tick();
 
     expect(mockSmartCaptchaInstance.execute).toHaveBeenCalledWith(1);
+  }));
+
+  it('executes once when visible is true during initial render with an already loaded API', fakeAsync(() => {
+    const initiallyVisible = TestBed.createComponent(InvisibleSmartCaptchaComponent);
+    initiallyVisible.componentRef.setInput('sitekey', 'test-site-key');
+    initiallyVisible.componentRef.setInput('visible', true);
+    initiallyVisible.detectChanges();
+    TestBed.tick();
+    tick();
+
+    expect(mockSmartCaptchaInstance.execute).toHaveBeenCalledTimes(1);
+    expect(mockSmartCaptchaInstance.execute).toHaveBeenCalledWith(1);
+    initiallyVisible.destroy();
   }));
 
   it('should handle validation correctly for invisible mode', () => {
