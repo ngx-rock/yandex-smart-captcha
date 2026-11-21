@@ -96,6 +96,9 @@
       "esbuild": ">=0.28.1",
       "@babel/core": ">=7.29.6",
       "koa": ">=3.1.2"
+    },
+    "patchedDependencies": {
+      "nx@24.0.6": "patches/nx@24.0.6.patch"
     }
   },
   "engines": {
