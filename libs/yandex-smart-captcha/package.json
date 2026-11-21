@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:ngx-rock/yandex-smart-captcha.git"
+    "url": "git+https://github.com/ngx-rock/yandex-smart-captcha.git"
   },
   "bugs": {
     "url": "https://github.com/ngx-rock/yandex-smart-captcha/issues"
